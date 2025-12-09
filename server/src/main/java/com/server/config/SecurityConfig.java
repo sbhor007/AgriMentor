@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -38,10 +39,15 @@ public class SecurityConfig implements WebMvcConfigurer{
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/**").permitAll()
+                
+                .requestMatchers("/api/v1/feedback/**").permitAll()
+
+
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/v1/user/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/api/v1/farmers/**").hasAnyRole("FARMER", "ADMIN")
                 .requestMatchers("/api/v1/consultants/**").hasAnyRole("CONSULTANT", "ADMIN")
+               
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilterChain, UsernamePasswordAuthenticationFilter.class);

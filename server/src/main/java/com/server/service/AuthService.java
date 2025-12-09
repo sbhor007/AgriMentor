@@ -1,6 +1,9 @@
 package com.server.service;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,27 +141,54 @@ public class AuthService {
 				throw new RuntimeException("Verification document is required");
 			}
 
-			// Absolute upload path (WORKS in JAR too)
-			String projectRoot = System.getProperty("user.dir");
-			String uploadDir = projectRoot + "/uploads/consultants/";
+//			// Absolute upload path (WORKS in JAR too)
+//			String projectRoot = System.getProperty("user.dir");
+//			String uploadDir = projectRoot + "/uploads/consultants/";
+//
+//			File directory = new File(uploadDir);
+//			if (!directory.exists()) {
+//				directory.mkdirs();
+//			}
+//
+//			String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+//			String uploadPath = uploadDir + fileName;
+//
+//			File dest = new File(uploadPath);
+//			file.transferTo(dest);
+//
+//			log.info("File uploaded to: {}", uploadPath);
+			
+			
+			
+			// Read file bytes IMMEDIATELY before Tomcat temp file is deleted
+            byte[] fileBytes = file.getBytes();
+            log.info("File read into memory: {} bytes", fileBytes.length);
 
-			File directory = new File(uploadDir);
-			if (!directory.exists()) {
-				directory.mkdirs();
-			}
+            // Use Paths API for cross-platform compatibility
+            String projectRoot = System.getProperty("user.dir");
+            Path uploadDir = Paths.get(projectRoot, "uploads", "consultants");
+            
+            // Create directories if they don't exist
+            Files.createDirectories(uploadDir);
 
-			String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-			String uploadPath = uploadDir + fileName;
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            Path uploadPath = uploadDir.resolve(fileName);
 
-			File dest = new File(uploadPath);
-			file.transferTo(dest);
+            // Write bytes directly to file (more reliable on Windows)
+            Files.write(uploadPath, fileBytes);
 
-			log.info("File uploaded to: {}", uploadPath);
+            log.info("File saved successfully to: {}", uploadPath.toAbsolutePath());
+			
+			
+			
+			
+			
+			
 
 			// 4. Create VerificationDocument Entity
 			VerificationDocument document = new VerificationDocument();
 			document.setDocumentType(file.getContentType());
-			document.setDocumentUrl(uploadPath);
+			document.setDocumentUrl(uploadPath.toString());
 			document.setFileContent(file.getBytes());
 			document.setConsultant(consultant);
 
