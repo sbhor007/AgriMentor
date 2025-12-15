@@ -32,6 +32,7 @@ import { AdminSettings } from './components/adminComponent/admin-settings/admin-
 import { ReportyReportDetail } from './components/reporty-report-detail/reporty-report-detail';
 import { GlobalFeedbackComponent } from './components/shared/global-feedback/global-feedback';
 import { ChatComponent } from './components/chat/chat';
+import { Weather } from './components/weather/weather/weather';
 
 export const routes: Routes = [
   {
@@ -63,7 +64,7 @@ export const routes: Routes = [
         },
       },
       {
-        path: 'forgot/password',
+        path: 'forgot-password',
         component: ForgotPassword,
         data: { animation: 'ForgotPassword' },
       },
@@ -128,6 +129,11 @@ export const routes: Routes = [
         component: ChatComponent,
         data: { animation: 'Chat' },
       },
+      {
+        path: 'weather',
+        component: Weather,
+        data: { animation: 'Weather' },
+      }
     ],
   },
   {
@@ -179,6 +185,11 @@ export const routes: Routes = [
         component: ChatComponent,
         data: { animation: 'Chat' },
       },
+      {
+        path: 'weather',
+        component: Weather,
+        data: { animation: 'Weather' },
+      }
     ],
   },
   {

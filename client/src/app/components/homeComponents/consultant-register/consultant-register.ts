@@ -207,7 +207,7 @@ export class ConsultantRegister implements OnInit {
 
   sendOtp() {
     console.log('📧 Sending OTP to:', this.f['email'].value);
-    // Implement actual OTP sending logic here
+    this.authService.sendOtp(this.f['email'].value);
   }
 
   resendOtp() {
@@ -216,24 +216,75 @@ export class ConsultantRegister implements OnInit {
     this.otpInputs.toArray().forEach((input) => (input.nativeElement.value = ''));
     this.otpInputs.first?.nativeElement.focus();
     console.log('📧 Resending OTP...');
+    this.sendOtp();
   }
 
-  verifyOtp(): boolean {
+  verifyOtp(): void {
     const enteredOtp = this.otpCode.join('');
 
     if (enteredOtp.length !== 6) {
       this.otpError = 'Please enter complete OTP code';
-      return false;
+      return;
     }
 
-    // Mock verification - replace with actual API call
-    const correctOtp = '123456';
-    if (enteredOtp === correctOtp) {
-      this.otpError = '';
-      return true;
-    } else {
-      this.otpError = 'Invalid OTP code. Please try again.';
-      return false;
+    // Call the async verification
+    this.authService.verifyOtp(this.f['email'].value, enteredOtp).subscribe({
+      next: (res) => {
+        console.log('OTP verified successfully:', res);
+        toast.success('OTP verified successfully');
+        this.otpError = '';
+
+        // Proceed with registration after successful verification
+        this.submitRegistration();
+      },
+      error: (err) => {
+        console.error('Failed to verify OTP:', err);
+        this.otpError = 'Invalid or expired OTP code';
+        toast.error(
+          'Failed to verify OTP: ' + (err.error?.message || err.message || 'Unknown error')
+        );
+      },
+    });
+  }
+
+  submitRegistration(): void {
+    if (this.consultantForm.valid) {
+      const consultantData = new FormData();
+
+      consultantData.append('firstName', this.f['firstName'].value);
+      consultantData.append('lastName', this.f['lastName'].value);
+      consultantData.append('email', this.f['email'].value);
+      consultantData.append('password', this.f['password'].value);
+      consultantData.append('phone', this.f['phone'].value);
+      consultantData.append('role', 'CONSULTANT');
+      consultantData.append('expertiseArea', this.f['experienceArea'].value);
+      consultantData.append('experienceYears', this.f['experienceYears'].value);
+      consultantData.append('qualifications', this.f['qualifications'].value);
+      consultantData.append('specialization', this.f['specialization'].value);
+      consultantData.append('bio', this.f['bio'].value);
+
+      // File
+      if (this.f['verificationDocument'].value) {
+        consultantData.append('verificationDocument', this.f['verificationDocument'].value);
+      }
+
+      // Address → Use Spring nested binding (address.propertyName)
+      consultantData.append('address.street', this.f['street'].value);
+      consultantData.append('address.city', this.f['city'].value);
+      consultantData.append('address.state', this.f['state'].value);
+      consultantData.append('address.pinCode', this.f['postalCode'].value);
+      consultantData.append('address.country', this.f['country'].value);
+      consultantData.append('address.latitude', String(this.locationCoordinates.Latitude));
+      consultantData.append('address.longitude', String(this.locationCoordinates.Longitude));
+
+      // Debug: show actual FormData
+      console.log('🔍 REAL FORMDATA CONTENT:');
+      for (let p of consultantData.entries()) {
+        console.log(p[0] + ': ', p[1]);
+      }
+
+      // Call API
+      this.authService.registerConsultant(consultantData);
     }
   }
 
@@ -258,45 +309,8 @@ export class ConsultantRegister implements OnInit {
 
   onSubmit() {
     if (this.currentStep === 3) {
-      if (this.verifyOtp()) {
-        if (this.consultantForm.valid) {
-          const consultantData = new FormData();
-
-          consultantData.append('firstName', this.f['firstName'].value);
-          consultantData.append('lastName', this.f['lastName'].value);
-          consultantData.append('email', this.f['email'].value);
-          consultantData.append('password', this.f['password'].value);
-          consultantData.append('phone', this.f['phone'].value);
-          consultantData.append('role', 'CONSULTANT');
-          consultantData.append('expertiseArea', this.f['experienceArea'].value);
-          consultantData.append('experienceYears', this.f['experienceYears'].value);
-          consultantData.append('qualifications', this.f['qualifications'].value);
-          consultantData.append('specialization', this.f['specialization'].value);
-          consultantData.append('bio', this.f['bio'].value);
-          // File
-          if (this.f['verificationDocument'].value) {
-            consultantData.append('verificationDocument', this.f['verificationDocument'].value);
-          }
-
-          // Address → Use Spring nested binding (address.propertyName)
-          consultantData.append('address.street', this.f['street'].value);
-          consultantData.append('address.city', this.f['city'].value);
-          consultantData.append('address.state', this.f['state'].value);
-          consultantData.append('address.pinCode', this.f['postalCode'].value);
-          consultantData.append('address.country', this.f['country'].value);
-          consultantData.append('address.latitude', String(this.locationCoordinates.Latitude));
-          consultantData.append('address.longitude', String(this.locationCoordinates.Longitude));
-
-          // Debug: show actual FormData
-          console.log('🔍 REAL FORMDATA CONTENT:');
-          for (let p of consultantData.entries()) {
-            console.log(p[0] + ': ', p[1]);
-          }
-
-          // Call API
-          this.authService.registerConsultant(consultantData);
-        }
-      }
+      // Verify OTP - if successful, it will automatically call submitRegistration()
+      this.verifyOtp();
     }
   }
 }

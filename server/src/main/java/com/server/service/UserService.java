@@ -11,6 +11,7 @@ import com.server.dto.RegisterRequest;
 import com.server.entity.*;
 import com.server.repository.*;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -55,6 +56,7 @@ public class UserService {
 	 }
 	 
 	 
+	 @Transactional
 	 public void updatePassword(String email, String newPassword) {
 		 log.error("Update password block");
 		    User user = userRepository.findByEmail(email)

@@ -150,4 +150,51 @@ export class ApiService {
       },
     });
   }
+
+  /*
+   * OTP API endpoints
+   */
+
+  /**
+   * Send OTP to email for verification
+   * @param email - User's email address
+   */
+  sendOtp(email: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}auth/send-otp/${email}`, null, this.httpOptions);
+  }
+
+  /**
+   * Verify OTP sent to email
+   * @param email - User's email address
+   * @param otp - OTP code to verify
+   */
+  verifyOtp(email: string, otp: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}auth/verify-otp`, { email, otp }, this.httpOptions);
+  }
+
+  /**
+   * Send OTP for forgot password
+   * @param email - User's email address
+   */
+  sendForgotPasswordOtp(email: string): Observable<any> {
+    return this.http.post(
+      `${this.baseUrl}auth/forgot-password/send-otp/${email}`,
+      null,
+      this.httpOptions
+    );
+  }
+
+  /**
+   * Reset password using OTP
+   * @param email - User's email address
+   * @param otp - OTP code
+   * @param newPassword - New password to set
+   */
+  resetPassword(email: string, otp: string, newPassword: string): Observable<any> {
+    return this.http.put(
+      `${this.baseUrl}auth/forgot-password/reset`,
+      { email, otp, newPassword },
+      this.httpOptions
+    );
+  }
 }

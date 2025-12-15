@@ -177,6 +177,7 @@ export class FarmerRegister {
   sendOtp() {
     console.log('📧 Sending OTP to:', this.f['email'].value);
     console.log('📱 Phone:', this.f['phone'].value);
+    this.authService.sendOtp(this.f['email'].value);
     // Implement actual OTP sending logic here
     // Example: this.authService.sendOtp(this.f['email'].value);
   }
@@ -193,40 +194,48 @@ export class FarmerRegister {
     this.sendOtp();
   }
 
-  verifyOtp(): boolean {
+  verifyOtp(): void {
     const enteredOtp = this.otpCode.join('');
 
     if (enteredOtp.length !== 6) {
       this.otpError = 'Please enter complete OTP code';
-      return false;
+      return;
     }
 
-    // Mock verification - replace with actual API call
-    const correctOtp = '123456'; // For testing purposes
-    if (enteredOtp === correctOtp) {
-      this.otpError = '';
-      return true;
+    // Call the async verification
+    this.authService.verifyOtp(this.f['email'].value, enteredOtp).subscribe({
+      next: (res) => {
+        console.log('OTP verified successfully:', res);
+        toast.success('OTP verified successfully');
+        this.otpError = '';
+
+        // Proceed with registration after successful verification
+        this.submitRegistration();
+      },
+      error: (err) => {
+        console.error('Failed to verify OTP:', err);
+        this.otpError = 'Invalid or expired OTP code';
+        toast.error(
+          'Failed to verify OTP: ' + (err.error?.message || err.message || 'Unknown error')
+        );
+      },
+    });
+  }
+
+  submitRegistration(): void {
+    if (this.farmerForm.valid) {
+      console.log('✅ Farmer registration data:', this.farmerForm.value);
+      console.log('✅ OTP Verified:', this.otpCode.join(''));
+      this.authService.registerUser(this.farmerForm.value);
     } else {
-      this.otpError = 'Invalid OTP code. Please try again.';
-      return false;
+      console.log('❌ Form is not valid');
+      toast.error('Please fill all required fields correctly');
     }
   }
 
   verifyAndSubmit() {
-    if (this.verifyOtp()) {
-      if (this.farmerForm.valid) {
-        console.log('✅ Farmer registration data:', this.farmerForm.value);
-        console.log('✅ OTP Verified:', this.otpCode.join(''));
-        this.authService.registerUser(this.farmerForm.value);
-
-        // Move to success step
-        // this.currentStep = 3;
-      } else {
-        console.log('❌ Form is not valid');
-      }
-    } else {
-      console.log('❌ Invalid OTP');
-    }
+    // Verify OTP - if successful, it will automatically call submitRegistration()
+    this.verifyOtp();
   }
 
   onSubmit() {

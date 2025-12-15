@@ -22,10 +22,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-
 public class Consultant extends User {
     @OneToOne(mappedBy = "consultant", cascade = CascadeType.ALL)
     @JsonBackReference
+    @lombok.ToString.Exclude
     private VerificationDocument verificationDocument;
     @Column(columnDefinition = "TEXT")
     private String bio;
@@ -39,12 +39,12 @@ public class Consultant extends User {
 
     @OneToMany(mappedBy = "consultant", cascade = CascadeType.ALL)
     @JsonBackReference(value = "consultation-consultant")
+    @lombok.ToString.Exclude
+    @Builder.Default
     private List<Consultation> consultations = new ArrayList<>();
 
     private LocalDateTime verifiedAt;
     @Value("false")
     private Boolean isActive;
-
-    
 
 }

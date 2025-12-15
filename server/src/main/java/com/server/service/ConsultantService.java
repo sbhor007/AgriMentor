@@ -62,7 +62,21 @@ public class ConsultantService {
                         response.setVerificationStatus(consultant.getVerificationStatus());
                         response.setIsActive(consultant.getIsActive());
 
-                        if (consultant.getVerificationDocument() != null) {
+
+
+                        if(consultant.getAddress() != null){
+                            Address address = consultant.getAddress();
+                            AddressDTO addressDTO = new AddressDTO();
+                            addressDTO.setStreet(address.getStreet());
+                            addressDTO.setCity(address.getCity());
+                            addressDTO.setState(address.getState());
+                            addressDTO.setCountry(address.getCountry());
+                            addressDTO.setPinCode(address.getPinCode());
+                            response.setAddress(addressDTO);
+                            response.setBio(consultant.getBio());
+                        }
+
+                        if(consultant.getVerificationDocument() != null){
                             VerificationDocument doc = consultant.getVerificationDocument();
                             VerificationDocumentDTO docDTO = new VerificationDocumentDTO();
                             docDTO.setId(doc.getId());
@@ -450,6 +464,11 @@ public class ConsultantService {
             if (updateRequest.getSpecialization() != null && !updateRequest.getSpecialization().isEmpty()) {
                 consultant.setSpecialization(updateRequest.getSpecialization());
                 log.debug("Updated specialization for consultant: {}", username);
+            }
+
+            if (updateRequest.getBio() != null && !updateRequest.getBio().isEmpty()) {
+                consultant.setBio(updateRequest.getBio());
+                log.debug("Updated bio for consultant: {}", username);
             }
 
             // Update address if provided

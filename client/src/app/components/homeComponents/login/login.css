@@ -1,0 +1,28 @@
+/* Tab Indicator Animation */
+.tab-indicator {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  will-change: left;
+}
+
+/* Smooth form content transitions */
+.form-content-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.form-content-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+/* Button press effect */
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Enhanced focus states */
+button:focus-visible {
+  outline: 2px solid rgba(34, 197, 94, 0.5);
+  outline-offset: 2px;
+}

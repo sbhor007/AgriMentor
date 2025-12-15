@@ -1,0 +1,391 @@
+<div class="weather-container">
+  <!-- Header -->
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Fetching weather data...</p>
+  </div>
+
+  <!-- Weather Cards Grid -->
+  <div *ngIf="!loading && weatherData" class="weather-grid">
+    <div
+      *ngFor="let day of weatherData.daily; let i = index"
+      class="weather-card"
+      [class.is-today]="i === 5"
+      [class.is-expanded]="expandedDayIndex === i"
+      (click)="toggleDay(i)"
+    >
+      <!-- Card Background Gradient -->
+      <div class="card-bg"></div>
+
+      <!-- Main Card Content -->
+      <div class="card-main">
+        <div class="card-header">
+          <div class="day-info">
+            <h3 class="day-name">{{ getDayOfWeek(day.date) }}</h3>
+            <p class="day-date">{{ getFormattedDate(day.date) }}</p>
+          </div>
+          <span *ngIf="i === 5" class="today-badge">Today</span>
+        </div>
+
+        <div class="card-body">
+          <div class="weather-icon-large">
+            <ng-container [ngSwitch]="day.icon">
+              <!-- Sun Icon -->
+              <svg
+                *ngSwitchCase="'sun'"
+                class="icon-svg"
+                viewBox="0 0 200 200"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <defs>
+                  <radialGradient id="sunGradient">
+                    <stop offset="0%" stop-color="#FDB813" />
+                    <stop offset="100%" stop-color="#FFAA00" />
+                  </radialGradient>
+                </defs>
+                <circle cx="100" cy="100" r="40" fill="url(#sunGradient)">
+                  <animate attributeName="r" values="40;42;40" dur="3s" repeatCount="indefinite" />
+                </circle>
+                <g stroke="#FDB813" stroke-width="6" stroke-linecap="round">
+                  <line x1="100" y1="30" x2="100" y2="15">
+                    <animate
+                      attributeName="y1"
+                      values="30;25;30"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
+                  </line>
+                  <line x1="100" y1="170" x2="100" y2="185">
+                    <animate
+                      attributeName="y1"
+                      values="170;175;170"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
+                  </line>
+                  <line x1="170" y1="100" x2="185" y2="100">
+                    <animate
+                      attributeName="x1"
+                      values="170;175;170"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
+                  </line>
+                  <line x1="30" y1="100" x2="15" y2="100">
+                    <animate
+                      attributeName="x1"
+                      values="30;25;30"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
+                  </line>
+                  <line x1="148.5" y1="51.5" x2="159" y2="41">
+                    <animate
+                      attributeName="x1"
+                      values="148.5;153.5;148.5"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
+                  </line>
+                  <line x1="51.5" y1="148.5" x2="41" y2="159">
+                    <animate
+                      attributeName="x1"
+                      values="51.5;46.5;51.5"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
+                  </line>
+                  <line x1="148.5" y1="148.5" x2="159" y2="159">
+                    <animate
+                      attributeName="x1"
+                      values="148.5;153.5;148.5"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
+                  </line>
+                  <line x1="51.5" y1="51.5" x2="41" y2="41">
+                    <animate
+                      attributeName="x1"
+                      values="51.5;46.5;51.5"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
+                  </line>
+                </g>
+              </svg>
+
+              <!-- Partly Cloudy Icon -->
+              <svg
+                *ngSwitchCase="'partly-cloudy'"
+                class="icon-svg"
+                viewBox="0 0 200 200"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <defs>
+                  <radialGradient id="sunGradient2">
+                    <stop offset="0%" stop-color="#FDB813" />
+                    <stop offset="100%" stop-color="#FFAA00" />
+                  </radialGradient>
+                </defs>
+                <circle cx="140" cy="60" r="25" fill="url(#sunGradient2)" opacity="0.9" />
+                <path
+                  d="M140 100 Q100 80 60 80 Q30 80 30 110 Q30 140 60 140 L140 140 Q170 140 170 110 Q170 80 140 100 Z"
+                  fill="#FFFFFF"
+                  stroke="#E5E7EB"
+                  stroke-width="2"
+                />
+                <path
+                  d="M140 100 Q100 80 60 80 Q30 80 30 110 Q30 140 60 140 L140 140 Q170 140 170 110 Q170 80 140 100 Z"
+                  fill="url(#cloudGradient)"
+                  opacity="0.3"
+                />
+              </svg>
+
+              <!-- Cloudy Icon -->
+              <svg
+                *ngSwitchCase="'cloudy'"
+                class="icon-svg"
+                viewBox="0 0 200 200"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <defs>
+                  <linearGradient id="cloudGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#F3F4F6" />
+                    <stop offset="100%" stop-color="#D1D5DB" />
+                  </linearGradient>
+                </defs>
+                <ellipse cx="100" cy="85" rx="45" ry="35" fill="url(#cloudGradient)" />
+                <ellipse cx="70" cy="95" rx="35" ry="30" fill="url(#cloudGradient)" />
+                <ellipse cx="130" cy="95" rx="35" ry="30" fill="url(#cloudGradient)" />
+                <ellipse cx="100" cy="105" rx="50" ry="35" fill="url(#cloudGradient)" />
+              </svg>
+
+              <!-- Rain Icon -->
+              <svg
+                *ngSwitchCase="'rain'"
+                class="icon-svg"
+                viewBox="0 0 200 200"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <ellipse cx="100" cy="70" rx="45" ry="30" fill="#9CA3AF" />
+                <ellipse cx="70" cy="80" rx="35" ry="25" fill="#9CA3AF" />
+                <ellipse cx="130" cy="80" rx="35" ry="25" fill="#9CA3AF" />
+                <g stroke="#3B82F6" stroke-width="4" stroke-linecap="round" opacity="0.8">
+                  <line x1="70" y1="110" x2="65" y2="135">
+                    <animate
+                      attributeName="y1"
+                      values="110;115;110"
+                      dur="0.8s"
+                      repeatCount="indefinite"
+                    />
+                  </line>
+                  <line x1="90" y1="115" x2="85" y2="145">
+                    <animate
+                      attributeName="y1"
+                      values="115;120;115"
+                      dur="0.8s"
+                      begin="0.2s"
+                      repeatCount="indefinite"
+                    />
+                  </line>
+                  <line x1="110" y1="115" x2="105" y2="145">
+                    <animate
+                      attributeName="y1"
+                      values="115;120;115"
+                      dur="0.8s"
+                      begin="0.4s"
+                      repeatCount="indefinite"
+                    />
+                  </line>
+                  <line x1="130" y1="110" x2="125" y2="135">
+                    <animate
+                      attributeName="y1"
+                      values="110;115;110"
+                      dur="0.8s"
+                      begin="0.6s"
+                      repeatCount="indefinite"
+                    />
+                  </line>
+                </g>
+              </svg>
+
+              <!-- Snow Icon -->
+              <svg
+                *ngSwitchCase="'snow'"
+                class="icon-svg"
+                viewBox="0 0 200 200"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <ellipse cx="100" cy="70" rx="45" ry="30" fill="#E5E7EB" />
+                <ellipse cx="70" cy="80" rx="35" ry="25" fill="#E5E7EB" />
+                <ellipse cx="130" cy="80" rx="35" ry="25" fill="#E5E7EB" />
+                <g fill="#BFDBFE">
+                  <circle cx="70" cy="120" r="5">
+                    <animate
+                      attributeName="cy"
+                      values="120;140;120"
+                      dur="3s"
+                      repeatCount="indefinite"
+                    />
+                  </circle>
+                  <circle cx="90" cy="130" r="5">
+                    <animate
+                      attributeName="cy"
+                      values="130;150;130"
+                      dur="3s"
+                      begin="0.5s"
+                      repeatCount="indefinite"
+                    />
+                  </circle>
+                  <circle cx="110" cy="125" r="5">
+                    <animate
+                      attributeName="cy"
+                      values="125;145;125"
+                      dur="3s"
+                      begin="1s"
+                      repeatCount="indefinite"
+                    />
+                  </circle>
+                  <circle cx="130" cy="120" r="5">
+                    <animate
+                      attributeName="cy"
+                      values="120;140;120"
+                      dur="3s"
+                      begin="1.5s"
+                      repeatCount="indefinite"
+                    />
+                  </circle>
+                </g>
+              </svg>
+
+              <!-- Storm Icon -->
+              <svg
+                *ngSwitchCase="'storm'"
+                class="icon-svg"
+                viewBox="0 0 200 200"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <ellipse cx="100" cy="70" rx="45" ry="30" fill="#6B7280" />
+                <ellipse cx="70" cy="80" rx="35" ry="25" fill="#6B7280" />
+                <ellipse cx="130" cy="80" rx="35" ry="25" fill="#6B7280" />
+                <path
+                  d="M100 105 L85 135 L100 135 L90 165"
+                  stroke="#F59E0B"
+                  stroke-width="5"
+                  fill="none"
+                  stroke-linejoin="round"
+                >
+                  <animate
+                    attributeName="opacity"
+                    values="1;0.5;1"
+                    dur="1.5s"
+                    repeatCount="indefinite"
+                  />
+                </path>
+              </svg>
+            </ng-container>
+          </div>
+
+          <div class="temp-info">
+            <div class="main-temp">{{ day.maxTemp }}°</div>
+            <div class="temp-range">
+              <span class="temp-high">{{ day.maxTemp }}°</span>
+              <span class="temp-divider">/</span>
+              <span class="temp-low">{{ day.minTemp }}°</span>
+            </div>
+            <div class="weather-desc">{{ day.description }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hourly Forecast (Visible on Expand Only) -->
+      <div class="card-hourly" *ngIf="expandedDayIndex === i">
+        <div class="hourly-header">
+          <h4>Hourly Forecast</h4>
+          <button class="close-btn" (click)="$event.stopPropagation(); expandedDayIndex = null">
+            ×
+          </button>
+        </div>
+
+        <div class="hourly-scroll">
+          <div class="hourly-item" *ngFor="let hour of day.hourly">
+            <div class="hour-time">{{ hour.time | date : 'h a' }}</div>
+
+            <div class="hour-icon">
+              <ng-container [ngSwitch]="hour.icon">
+                <svg *ngSwitchCase="'sun'" class="hour-svg" viewBox="0 0 64 64">
+                  <circle cx="32" cy="32" r="12" fill="#FDB813" />
+                  <circle
+                    cx="32"
+                    cy="32"
+                    r="20"
+                    fill="none"
+                    stroke="#FDB813"
+                    stroke-width="2"
+                    stroke-dasharray="1 8"
+                  />
+                </svg>
+                <svg *ngSwitchCase="'partly-cloudy'" class="hour-svg" viewBox="0 0 64 64">
+                  <circle cx="45" cy="20" r="8" fill="#FDB813" />
+                  <path
+                    d="M50 40 H20 Q10 40 10 30 Q10 20 20 20 Q25 10 38 15 Q50 20 50 30 Z"
+                    fill="#E5E7EB"
+                  />
+                </svg>
+                <svg *ngSwitchCase="'cloudy'" class="hour-svg" viewBox="0 0 64 64">
+                  <ellipse cx="32" cy="28" rx="18" ry="12" fill="#D1D5DB" />
+                  <ellipse cx="22" cy="32" rx="12" ry="10" fill="#D1D5DB" />
+                  <ellipse cx="42" cy="32" rx="12" ry="10" fill="#D1D5DB" />
+                </svg>
+                <svg *ngSwitchCase="'rain'" class="hour-svg" viewBox="0 0 64 64">
+                  <ellipse cx="32" cy="24" rx="16" ry="10" fill="#9CA3AF" />
+                  <line x1="26" y1="38" x2="24" y2="48" stroke="#3B82F6" stroke-width="2" />
+                  <line x1="32" y1="38" x2="30" y2="48" stroke="#3B82F6" stroke-width="2" />
+                  <line x1="38" y1="38" x2="36" y2="48" stroke="#3B82F6" stroke-width="2" />
+                </svg>
+                <svg *ngSwitchCase="'snow'" class="hour-svg" viewBox="0 0 64 64">
+                  <ellipse cx="32" cy="24" rx="16" ry="10" fill="#E5E7EB" />
+                  <circle cx="26" cy="40" r="2" fill="#BFDBFE" />
+                  <circle cx="32" cy="42" r="2" fill="#BFDBFE" />
+                  <circle cx="38" cy="40" r="2" fill="#BFDBFE" />
+                </svg>
+                <svg *ngSwitchCase="'storm'" class="hour-svg" viewBox="0 0 64 64">
+                  <ellipse cx="32" cy="24" rx="16" ry="10" fill="#6B7280" />
+                  <path
+                    d="M32 35 L28 45 L34 45 L30 55"
+                    stroke="#F59E0B"
+                    stroke-width="2"
+                    fill="none"
+                  />
+                </svg>
+              </ng-container>
+            </div>
+
+            <div class="hour-precip" *ngIf="isPrecipitation(hour.icon)">
+              <svg class="precip-icon" viewBox="0 0 16 16" fill="currentColor">
+                <path
+                  d="M8 0a1 1 0 011 1v6h6a1 1 0 110 2H9v6a1 1 0 11-2 0V9H1a1 1 0 010-2h6V1a1 1 0 011-1z"
+                />
+              </svg>
+              <span>{{ hour.precip }}%</span>
+            </div>
+
+            <div class="hour-temp">{{ hour.temp }}°</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!loading && !weatherData" class="error-state">
+    <svg class="error-icon" viewBox="0 0 64 64" fill="none">
+      <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="2" />
+      <path d="M32 16v16M32 40v4" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+    </svg>
+    <h3>Unable to Load Weather Data</h3>
+    <p>Please check your connection and try again</p>
+  </div>
+</div>

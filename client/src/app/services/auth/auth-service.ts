@@ -16,7 +16,9 @@ export class AuthService {
   isUserAlreadyExist(username: string, role: string): Observable<boolean> {
     return this.api.isUserAlreadyExistst(username, role).pipe(
       map((res: any) => {
-        return res.data; // true or false
+        console.log(res);
+
+        return res.data;
       })
     );
   }
@@ -85,5 +87,55 @@ export class AuthService {
         toast.error('Login failed: ' + (err.error?.message || err.message || 'Unknown error'));
       },
     });
+  }
+
+  /**
+   * Send OTP to email for verification
+   * @param email - User's email address
+   * @returns Observable with API response
+   */
+  sendOtp(email: string) {
+    return this.api.sendOtp(email).subscribe({
+      next: (res) => {
+        console.log('OTP sent successfully:', res);
+        toast.success('OTP sent to your email');
+      },
+      error: (err) => {
+        console.error('Failed to send OTP:', err);
+        toast.error(
+          'Failed to send OTP: ' + (err.error?.message || err.message || 'Unknown error')
+        );
+      },
+    });
+  }
+
+  /**
+   * Verify OTP sent to email
+   * @param email - User's email address
+   * @param otp - OTP code to verify
+   * @returns Observable with verification result
+   */
+  verifyOtp(email: string, otp: string) {
+    return this.api.verifyOtp(email, otp);
+  }
+
+  /**
+   * Send OTP for forgot password flow
+   * @param email - User's email address
+   * @returns Observable with API response
+   */
+  sendForgotPasswordOtp(email: string): Observable<any> {
+    return this.api.sendForgotPasswordOtp(email);
+  }
+
+  /**
+   * Reset password using OTP
+   * @param email - User's email address
+   * @param otp - OTP code
+   * @param newPassword - New password to set
+   * @returns Observable with API response
+   */
+  resetPassword(email: string, otp: string, newPassword: string): Observable<any> {
+    return this.api.resetPassword(email, otp, newPassword);
   }
 }

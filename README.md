@@ -112,6 +112,13 @@
 | [PROJECT_DOCUMENTATION.md](./PROJECT_DOCUMENTATION.md) | Complete project architecture, database schema, and features |
 | [API_REFERENCE.md](./API_REFERENCE.md) | Detailed API endpoints with request/response examples |
 | [DEVELOPER_SETUP.md](./DEVELOPER_SETUP.md) | Step-by-step development environment setup |
+| [USER_GUIDE.md](./USER_GUIDE.md) | Complete user guide for farmers, consultants, and admins |
+| [COMPONENT_REFERENCE.md](./COMPONENT_REFERENCE.md) | Technical reference for all backend and frontend components |
+| [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) | Production deployment guide (Docker, AWS, Azure, GCP) |
+| [TESTING_GUIDE.md](./TESTING_GUIDE.md) | Comprehensive testing guide with examples |
+| [CONTRIBUTING.md](./CONTRIBUTING.md) | Guidelines for contributing to the project |
+| [SECURITY.md](./SECURITY.md) | Security best practices and guidelines |
+| [PERFORMANCE.md](./PERFORMANCE.md) | Performance optimization strategies |
 
 ---
 
@@ -339,7 +346,7 @@ For questions or support, please contact the development team.
 ---
 
 **Version**: 1.0.0  
-**Last Updated**: December 10, 2025
+**Last Updated**: December 15, 2025
 
 ---
 

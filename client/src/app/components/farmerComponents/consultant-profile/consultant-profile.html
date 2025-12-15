@@ -83,6 +83,7 @@
               <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
                 Dr. {{ consultant.firstName }} {{ consultant.lastName }}
               </h1>
+              <!-- <p>{{ consultant.bio || '' }}</p> -->
               <p class="text-lg text-gray-600 mb-4">
                 {{ consultant.specialization || 'Agricultural Expert' }}
               </p>
@@ -111,7 +112,7 @@
               </div>
 
               <!-- Action Button -->
-              <button
+              <!-- <button
                 (click)="requestConsultation()"
                 class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-8 py-3 rounded-xl font-semibold text-base hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 mx-auto md:mx-0"
               >
@@ -124,12 +125,54 @@
                   />
                 </svg>
                 Request Consultation
-              </button>
+              </button> -->
             </div>
           </div>
         </div>
       </div>
+      <!-- Bio Card -->
+      <div
+        class="bg-white/40 backdrop-blur-md rounded-3xl shadow-lg border border-white/60 p-6"
+        style="box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.5), 0 10px 30px rgba(0, 0, 0, 0.1)"
+      >
+        <div class="flex items-center gap-3 mb-4">
+          <div
+            class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center"
+          >
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </div>
+          <h2 class="text-xl font-bold text-gray-900">About</h2>
+        </div>
 
+        <div class="bg-white/50 rounded-xl p-4 backdrop-blur-sm">
+          <p *ngIf="consultant.bio" class="text-gray-700 leading-relaxed">
+            {{ consultant.bio }}
+          </p>
+          <div *ngIf="!consultant.bio" class="text-center py-6">
+            <svg
+              class="w-12 h-12 text-gray-300 mx-auto mb-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            <p class="text-gray-400 text-sm">No bio available</p>
+          </div>
+        </div>
+      </div>
       <!-- Info Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Personal Information Card -->
@@ -217,7 +260,7 @@
               <div>
                 <p class="text-xs text-gray-500 font-medium">Experience</p>
                 <p class="text-sm font-semibold text-gray-800">
-                  {{ consultant.experience || 'N/A' }}+ years
+                  {{ consultant.experienceYears || 'N/A' }}+ years
                 </p>
               </div>
             </div>
@@ -315,9 +358,175 @@
               <div>
                 <p class="text-xs text-gray-500 font-medium">Location</p>
                 <p class="text-sm font-semibold text-gray-800">
-                  {{ consultant.address || 'Not specified' }}
+                  {{ consultant.address.city || 'Not specified' }}
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Address Details Card -->
+      <div
+        *ngIf="consultant.address"
+        class="bg-white/40 backdrop-blur-md rounded-3xl shadow-lg border border-white/60 p-6"
+        style="box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.5), 0 10px 30px rgba(0, 0, 0, 0.1)"
+      >
+        <div class="flex items-center gap-3 mb-4">
+          <div
+            class="w-10 h-10 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center"
+          >
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+          </div>
+          <h2 class="text-xl font-bold text-gray-900">Address Details</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="flex items-start gap-3 p-3 bg-white/50 rounded-xl backdrop-blur-sm">
+            <svg
+              class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+              />
+            </svg>
+            <div>
+              <p class="text-xs text-gray-500 font-medium">Street</p>
+              <p class="text-sm font-semibold text-gray-800">
+                {{ consultant.address.street || 'N/A' }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3 p-3 bg-white/50 rounded-xl backdrop-blur-sm">
+            <svg
+              class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+              />
+            </svg>
+            <div>
+              <p class="text-xs text-gray-500 font-medium">City</p>
+              <p class="text-sm font-semibold text-gray-800">
+                {{ consultant.address.city || 'N/A' }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3 p-3 bg-white/50 rounded-xl backdrop-blur-sm">
+            <svg
+              class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+              />
+            </svg>
+            <div>
+              <p class="text-xs text-gray-500 font-medium">State</p>
+              <p class="text-sm font-semibold text-gray-800">
+                {{ consultant.address.state || 'N/A' }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3 p-3 bg-white/50 rounded-xl backdrop-blur-sm">
+            <svg
+              class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
+            </svg>
+            <div>
+              <p class="text-xs text-gray-500 font-medium">PIN Code</p>
+              <p class="text-sm font-semibold text-gray-800">
+                {{ consultant.address.pinCode || 'N/A' }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3 p-3 bg-white/50 rounded-xl backdrop-blur-sm">
+            <svg
+              class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <div>
+              <p class="text-xs text-gray-500 font-medium">Country</p>
+              <p class="text-sm font-semibold text-gray-800">
+                {{ consultant.address.country || 'N/A' }}
+              </p>
+            </div>
+          </div>
+
+          <div
+            *ngIf="consultant.address.latitude && consultant.address.longitude"
+            class="flex items-start gap-3 p-3 bg-white/50 rounded-xl backdrop-blur-sm col-span-1 md:col-span-2"
+          >
+            <svg
+              class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+              />
+            </svg>
+            <div>
+              <p class="text-xs text-gray-500 font-medium">Coordinates</p>
+              <p class="text-sm font-semibold text-gray-800">
+                {{ consultant.address.latitude }}, {{ consultant.address.longitude }}
+              </p>
             </div>
           </div>
         </div>

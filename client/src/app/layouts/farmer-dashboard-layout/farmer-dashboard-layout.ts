@@ -1,23 +1,31 @@
-import { ChangeDetectorRef, Component, HostListener, Inject, inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
-import { App, RouteAnimations} from '../../app';
-import { FarmerNavbar } from "../../components/farmerComponents/farmer-navbar/farmer-navbar";
+import {
+  ChangeDetectorRef,
+  Component,
+  HostListener,
+  Inject,
+  inject,
+  OnDestroy,
+  OnInit,
+  PLATFORM_ID,
+} from '@angular/core';
+import { Router, RouterOutlet, RouterLink } from '@angular/router';
+import { App, RouteAnimations } from '../../app';
+import { FarmerNavbar } from '../../components/farmerComponents/farmer-navbar/farmer-navbar';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { FarmerService } from '../../services/farmerService/farmer-service';
 
 @Component({
   selector: 'app-farmer-dashboard-layout',
-  imports: [RouterOutlet, FarmerNavbar,CommonModule],
+  imports: [RouterOutlet, RouterLink, FarmerNavbar, CommonModule],
   templateUrl: './farmer-dashboard-layout.html',
   styleUrl: './farmer-dashboard-layout.css',
-  animations: [RouteAnimations]
+  animations: [RouteAnimations],
 })
 export class FarmerDashboardLayout implements OnInit, OnDestroy {
   private app = Inject(App);
   farmerProfile: any = null;
-    private subscription!: Subscription;
-  
+  private subscription!: Subscription;
 
   prepareRoute(outlet: RouterOutlet) {
     // return in next tick to avoid ExpressionChangedAfterItHasBeenCheckedError
@@ -32,7 +40,6 @@ export class FarmerDashboardLayout implements OnInit, OnDestroy {
     private router: Router,
     private farmerService: FarmerService,
     private cdr: ChangeDetectorRef
-
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
@@ -95,9 +102,8 @@ export class FarmerDashboardLayout implements OnInit, OnDestroy {
       this.closeMobileMenu();
     }
   }
-  
 
-  getFarmerProfile(){
+  getFarmerProfile() {
     this.subscription = this.farmerService.getFarmerProfile().subscribe((state: any) => {
       console.log('🟢 Received farmer profile from service:', state);
 
@@ -109,9 +115,5 @@ export class FarmerDashboardLayout implements OnInit, OnDestroy {
     });
     console.log('farmarProfile');
     console.log(this.farmerProfile);
-    
   }
-
-
-  
 }

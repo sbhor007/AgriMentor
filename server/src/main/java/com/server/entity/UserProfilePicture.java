@@ -11,19 +11,20 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 
-public class UserProfilePicture  {
-	 @Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    private Long id;
-	    private String filePath;
-	    private String fileName;
-	    private String fileType;
-	    private Long fileSize;
-	    private Boolean isActive;
-	    private LocalDateTime uploadedAt;
-    @OneToOne(mappedBy = "profilePicture")
-    @JsonBackReference
-    private User user;
+public class UserProfilePicture {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	private String filePath;
+	private String fileName;
+	private String fileType;
+	private Long fileSize;
+	private Boolean isActive;
+	private LocalDateTime uploadedAt;
+	@OneToOne(mappedBy = "profilePicture")
+	@JsonBackReference
+	@ToString.Exclude
+	private User user;
 }

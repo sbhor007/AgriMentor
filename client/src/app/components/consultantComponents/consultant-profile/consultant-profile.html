@@ -1,6 +1,4 @@
-<div
-  class="min-h-screen bg-gradient-to-br  py-8 px-4 sm:px-6 lg:px-8"
->
+<div class="min-h-screen bg-gradient-to-br py-8 px-4 sm:px-6 lg:px-8">
   <div class="max-w-6xl mx-auto">
     <!-- Success Message -->
     <div
@@ -139,8 +137,19 @@
               {{ consultantProfile?.email || 'consultant@example.com' }}
             </p>
 
+            <!-- Bio Section (Preview - First 6 words) -->
+            <p
+              *ngIf="consultantProfile?.bio"
+              class="text-white/90 text-sm mb-4 max-w-2xl leading-relaxed"
+            >
+              {{
+                consultantProfile?.bio.split(' ').slice(0, 6).join(' ') +
+                  (consultantProfile?.bio.split(' ').length > 6 ? '...' : '')
+              }}
+            </p>
+
             <div class="flex flex-wrap gap-3 justify-center lg:justify-start">
-              <span
+              <!-- <span
                 class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium border border-white/30 shadow-lg"
               >
                 <span class="inline-flex items-center gap-2">
@@ -152,9 +161,9 @@
                       d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
                     />
                   </svg>
-                  <!-- TODO:{{ formatSoilType(consultantProfile?.soilType) || 'N/A' }} -->
                 </span>
-              </span>
+              </span> -->
+              <!-- TODO:{{ formatSoilType(consultantProfile?.soilType) || 'N/A' }} -->
               <span
                 class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium border border-white/30 shadow-lg"
               >
@@ -167,7 +176,7 @@
                       d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"
                     />
                   </svg>
-                  {{ consultantProfile?.farmAreaHectares || 0 }} Hectares
+                  {{ consultantProfile?.experienceYears || 0 }} Years
                 </span>
               </span>
               <span
@@ -300,7 +309,8 @@
               <input
                 formControlName="email"
                 type="email"
-                [readonly]="!editMode"
+                [readonly]="true"
+                disable
                 class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all read-only:bg-gray-50 read-only:text-gray-600 font-medium"
                 placeholder="email@example.com"
               />
@@ -342,6 +352,22 @@
                   />
                 </svg>
                 Valid 10-digit phone is required
+              </p>
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                Bio / About Me <span class="text-gray-400 text-xs">(Optional)</span>
+              </label>
+              <textarea
+                formControlName="bio"
+                [readonly]="!editMode"
+                rows="9"
+                class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all read-only:bg-gray-50 read-only:text-gray-600 font-medium resize-none"
+                placeholder="Tell farmers about your expertise, experience, and how you can help them..."
+              ></textarea>
+              <p class="text-gray-500 text-xs mt-1">
+                Share your professional background and what makes you a great consultant
               </p>
             </div>
           </div>

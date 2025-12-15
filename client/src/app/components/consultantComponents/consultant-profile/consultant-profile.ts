@@ -20,6 +20,7 @@ interface ConsultantProfileUpdateRequest {
   lastName: string;
   email: string;
   phone: string;
+  bio?: string;
   expertiseArea: string;
   experienceYears: number;
   qualifications: string;
@@ -58,6 +59,7 @@ export class ConsultantProfile implements OnInit, OnDestroy {
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+      bio: [''],
       expertiseArea: ['', Validators.required],
       experienceYears: [0, [Validators.required, Validators.min(0)]],
       qualifications: ['', Validators.required],
@@ -168,6 +170,7 @@ export class ConsultantProfile implements OnInit, OnDestroy {
       lastName: this.consultantProfile.lastName || '',
       email: this.consultantProfile.email || '',
       phone: this.consultantProfile.phone || '',
+      bio: this.consultantProfile.bio || '',
       expertiseArea: this.consultantProfile.expertiseArea || '',
       experienceYears: this.consultantProfile.experienceYears || 0,
       qualifications: this.consultantProfile.qualifications || '',
@@ -283,6 +286,7 @@ export class ConsultantProfile implements OnInit, OnDestroy {
       lastName: formValue.lastName,
       email: formValue.email,
       phone: formValue.phone,
+      bio: formValue.bio || undefined,
       expertiseArea: formValue.expertiseArea,
       experienceYears: Number(formValue.experienceYears),
       qualifications: formValue.qualifications,

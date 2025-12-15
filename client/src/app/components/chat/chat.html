@@ -1,56 +1,65 @@
 <div
-  class="flex h-[calc(100vh-140px)] m-4 bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 font-sans"
+  class="flex h-[calc(100vh-140px)] m-4 bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border-2 border-gray-200 font-sans"
 >
   <!-- Sidebar -->
-  <div class="w-80 flex flex-col border-r border-gray-100 bg-white">
+  <div
+    class="w-80 flex flex-col border-r border-gray-200 bg-gradient-to-b from-white to-gray-50/50"
+  >
     <!-- Header -->
-    <div class="p-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center h-16">
-      <h2 class="text-xl font-bold text-gray-800 tracking-tight">Chats</h2>
-      <span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">
+    <div
+      class="p-5 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-indigo-600 flex justify-between items-center h-20"
+    >
+      <h2 class="text-2xl font-bold text-white tracking-tight">Messages</h2>
+      <span
+        class="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg"
+      >
         {{ chatRooms.length }}
       </span>
     </div>
 
     <!-- Room List -->
-    <div class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1 shadow-2xl">
+    <div class="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2">
       <div
         *ngFor="let room of chatRooms; trackBy: trackByRoomId"
         (click)="selectRoom(room)"
-        class="group flex items-center p-3 rounded-xl cursor-pointer transition-colors duration-200 relative"
+        class="group flex items-center p-4 rounded-2xl cursor-pointer transition-all duration-200 relative hover:scale-[1.02]"
         [ngClass]="{
-          'bg-blue-50': selectedRoom?.id === room.id,
-          'hover:bg-gray-50': selectedRoom?.id !== room.id
+          'bg-gradient-to-r from-blue-50 to-indigo-50 shadow-md': selectedRoom?.id === room.id,
+          'hover:bg-gray-50 hover:shadow-sm': selectedRoom?.id !== room.id
         }"
       >
         <!-- Avatar -->
         <div class="relative flex-shrink-0">
           <div
-            class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-sm"
+            class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg ring-2 ring-white group-hover:scale-110 transition-transform duration-200"
           >
             {{ getOtherParticipant(room).firstName?.charAt(0) || 'U' }}
           </div>
+          <div
+            class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white"
+          ></div>
         </div>
 
         <!-- Info -->
-        <div class="ml-3 flex-1 min-w-0">
-          <div class="flex justify-between items-center mb-0.5">
-            <h3 class="font-semibold text-gray-900 truncate text-[0.95rem]">
+        <div class="ml-4 flex-1 min-w-0">
+          <div class="flex justify-between items-center mb-1">
+            <h3 class="font-bold text-gray-900 truncate text-base">
               {{ getOtherParticipant(room).firstName }} {{ getOtherParticipant(room).lastName }}
             </h3>
-            <span class="text-xs text-gray-400 font-medium whitespace-nowrap ml-2">
+            <span class="text-xs text-gray-500 font-medium whitespace-nowrap ml-2">
               {{ formatTime(room.lastMessageAt) }}
             </span>
           </div>
-          <div class="flex justify-between items-center h-5">
-            <p class="text-xs text-gray-500 truncate pr-2 flex-1">
-              <span *ngIf="room.consultation?.topic" class="font-medium text-gray-600">
+          <div class="flex justify-between items-center">
+            <p class="text-sm text-gray-600 truncate pr-2 flex-1 font-medium">
+              <span *ngIf="room.consultation?.topic">
                 {{ room.consultation?.topic }}
               </span>
               <span *ngIf="!room.consultation?.topic">Consultation</span>
             </p>
             <span
               *ngIf="(room.unreadCount || 0) > 0"
-              class="flex-shrink-0 bg-green-500 text-white text-[0.65rem] font-bold px-1.5 h-4 min-w-[1rem] rounded-full flex items-center justify-center"
+              class="flex-shrink-0 bg-gradient-to-r from-emerald-500 to-green-600 text-white text-xs font-bold px-2 py-1 min-w-[1.5rem] rounded-full flex items-center justify-center shadow-md"
             >
               {{ room.unreadCount }}
             </span>
@@ -61,30 +70,35 @@
   </div>
 
   <!-- Main Chat Area -->
-  <div class="flex-1 flex flex-col bg-[#efeae2] relative" *ngIf="selectedRoom; else noSelection">
-    <!-- Pattern Background (Subtle) -->
+  <div
+    class="flex-1 flex flex-col bg-gradient-to-br from-gray-50 to-blue-50/30 relative"
+    *ngIf="selectedRoom; else noSelection"
+  >
+    <!-- Decorative Background -->
     <div
-      class="absolute inset-0 opacity-[0.06] pointer-events-none"
-      style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png')"
+      class="absolute top-0 right-0 w-96 h-96 bg-blue-200/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"
+    ></div>
+    <div
+      class="absolute bottom-0 left-0 w-80 h-80 bg-indigo-200/10 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none"
     ></div>
 
     <!-- Chat Header -->
     <div
-      class="h-16 px-6 flex items-center justify-between bg-white border-b border-gray-100 shadow-sm z-10"
+      class="h-20 px-6 flex items-center justify-between bg-white/80 backdrop-blur-xl border-b border-gray-200 shadow-lg z-10"
     >
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-4">
         <div
-          class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold shadow-sm"
+          class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold shadow-lg ring-2 ring-white"
         >
           {{ getOtherParticipant(selectedRoom).firstName?.charAt(0) }}
         </div>
         <div>
-          <h3 class="font-bold text-gray-800 text-base leading-tight">
+          <h3 class="font-bold text-gray-900 text-lg leading-tight">
             {{ getOtherParticipant(selectedRoom).firstName }}
             {{ getOtherParticipant(selectedRoom).lastName }}
           </h3>
-          <p class="text-xs text-green-600 font-medium flex items-center gap-1">
-            <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Online
+          <p class="text-sm text-emerald-600 font-semibold flex items-center gap-1.5">
+            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Online
           </p>
         </div>
       </div>
@@ -92,7 +106,7 @@
 
     <!-- Messages -->
     <div
-      class="flex-1 overflow-y-auto px-4 sm:px-8 py-6 space-y-3 custom-scrollbar z-0"
+      class="flex-1 overflow-y-auto px-4 sm:px-8 py-6 space-y-4 custom-scrollbar z-10"
       #messageContainer
     >
       <div
@@ -104,23 +118,30 @@
         }"
       >
         <div
-          class="relative px-4 py-2 shadow-sm rounded-lg text-[0.93rem] leading-snug"
+          class="relative px-4 py-3 shadow-lg rounded-2xl text-base leading-relaxed"
           [ngClass]="{
-            'bg-[#d9fdd3] text-gray-800 rounded-tr-none': isSentByMe(msg),
-            'bg-white text-gray-800 rounded-tl-none': !isSentByMe(msg)
+            'bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-tr-sm':
+              isSentByMe(msg),
+            'bg-white text-gray-800 rounded-tl-sm': !isSentByMe(msg)
           }"
         >
           <p class="whitespace-pre-wrap break-words">{{ msg.content }}</p>
-          <div class="flex items-center justify-end gap-1 mt-1 select-none">
-            <span class="text-[0.65rem] text-gray-500">
+          <div class="flex items-center justify-end gap-1.5 mt-2 select-none">
+            <span
+              class="text-xs font-medium"
+              [ngClass]="{
+                'text-white/80': isSentByMe(msg),
+                'text-gray-500': !isSentByMe(msg)
+              }"
+            >
               {{ formatTime(msg.sentAt || '') }}
             </span>
             <span
               *ngIf="isSentByMe(msg)"
-              class="text-[0.7rem]"
+              class="text-sm"
               [ngClass]="{
-                'text-blue-500': msg.status === 'READ',
-                'text-gray-400': msg.status !== 'READ'
+                'text-white': msg.status === 'READ',
+                'text-white/60': msg.status !== 'READ'
               }"
             >
               {{ msg.status === 'READ' ? '✓✓' : '✓' }}
@@ -131,23 +152,23 @@
     </div>
 
     <!-- Input Area -->
-    <div class="p-4 bg-gray-50 border-t border-gray-200 z-10">
-      <div class="flex gap-2 items-end max-w-4xl mx-auto">
+    <div class="p-5 bg-white/80 backdrop-blur-xl border-t border-gray-200 z-10">
+      <div class="flex gap-3 items-end max-w-4xl mx-auto">
         <div
-          class="flex-1 bg-white rounded-2xl border border-gray-300 shadow-sm focus-within:ring-2 focus-within:ring-blue-100 focus-within:border-blue-400 transition-all flex items-center"
+          class="flex-1 bg-white rounded-2xl border-2 border-gray-200 shadow-md focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-400 transition-all flex items-center"
         >
           <input
             type="text"
-            class="flex-1 bg-transparent border-none focus:ring-0 text-gray-800 placeholder-gray-400 px-4 py-3 h-12"
+            class="flex-1 bg-transparent border-none focus:ring-0 text-gray-800 placeholder-gray-400 px-5 py-4 text-base"
             [(ngModel)]="newMessage"
             (keyup.enter)="sendMessage()"
-            placeholder="Type a message"
+            placeholder="Type a message..."
           />
         </div>
         <button
           (click)="sendMessage()"
           [disabled]="!newMessage.trim()"
-          class="h-12 w-12 bg-blue-600 text-white rounded-full shadow-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center flex-shrink-0"
+          class="h-14 w-14 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all flex items-center justify-center flex-shrink-0"
         >
           <svg class="w-6 h-6 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -165,20 +186,27 @@
   <!-- Empty State -->
   <ng-template #noSelection>
     <div
-      class="flex-1 flex flex-col items-center justify-center bg-gray-50 border-l border-gray-100"
+      class="flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50/20 border-l border-gray-200 relative overflow-hidden"
     >
-      <div class="opacity-50 mb-4">
-        <!-- Abstract Chat Icon -->
-        <svg class="w-24 h-24 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"
-          ></path>
-          <path
-            d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 012-2V9a2 2 0 01-2-2h-1z"
-          ></path>
-        </svg>
+      <div
+        class="absolute top-0 right-0 w-96 h-96 bg-blue-200/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"
+      ></div>
+      <div class="relative z-10 text-center">
+        <div
+          class="w-32 h-32 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg"
+        >
+          <svg class="w-16 h-16 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"
+            ></path>
+            <path
+              d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 01-2-2h-1z"
+            ></path>
+          </svg>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-2">Select a Chat</h3>
+        <p class="text-gray-500">Choose a conversation to start messaging</p>
       </div>
-      <h3 class="text-xl font-medium text-gray-600">Select a chat to start messaging</h3>
     </div>
   </ng-template>
 </div>

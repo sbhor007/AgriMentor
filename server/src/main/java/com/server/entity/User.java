@@ -54,6 +54,7 @@ public class User implements UserDetails {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_picture_id")
     @JsonManagedReference
+    @ToString.Exclude // Exclude from toString to prevent LazyInitializationException
     private UserProfilePicture profilePicture;
 
     @Column(nullable = false)

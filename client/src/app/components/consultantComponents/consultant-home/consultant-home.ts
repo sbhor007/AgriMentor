@@ -4,6 +4,9 @@ import { Subscription } from 'rxjs';
 import { ConsultationService } from '../../../services/consultationService/consultation-service';
 import { ConsultantService } from '../../../services/consultantService/consultant-service';
 import { Router } from '@angular/router';
+import { WeatherService } from '../../../services/weather/weather.service';
+import { LocationService } from '../../../services/location/location-service';
+import { FarmVisit } from '../../../services/farmVisit/farm-visit';
 
 @Component({
   selector: 'app-consultant-home',
@@ -56,11 +59,21 @@ export class ConsultantHome implements OnInit, OnDestroy {
   // consultations - will be populated from API
   consultationRequests: any[] = [];
 
+  // Weather data
+  weather: any = null;
+
+  // Farm visits data
+  upcomingVisit: any = null;
+  allFarmVisits: any[] = [];
+
   constructor(
     private consultationService: ConsultationService,
     private consultantService: ConsultantService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private weatherService: WeatherService,
+    private locationService: LocationService,
+    private farmVisitService: FarmVisit
   ) {
     console.log('🏥 ConsultantHome Constructor Initialized');
   }
@@ -68,6 +81,8 @@ export class ConsultantHome implements OnInit, OnDestroy {
   ngOnInit() {
     console.log('📌 ngOnInit() called — initializing consultant dashboard');
     this.loadConsultantData();
+    this.loadUpcomingFarmVisits();
+    this.initializeLocationAndWeather();
   }
 
   /**
@@ -295,6 +310,111 @@ export class ConsultantHome implements OnInit, OnDestroy {
     if (consultation && consultation.id) {
       this.router.navigate(['/consultant/consultation-details', consultation.id]);
     }
+  }
+
+  /**
+   * Initialize location and weather data
+   */
+  async initializeLocationAndWeather() {
+    try {
+      // 1. Get current location
+      const coords = await this.locationService.getCurrentLocation();
+      console.log('📍 Current Location:', coords);
+
+      // 2. Fetch address details (updates service signals)
+      this.locationService.getAddress(coords.latitude, coords.longitude);
+
+      // 3. Fetch Weather
+      this.getWeatherDataByLatLon(coords.latitude, coords.longitude);
+    } catch (error) {
+      console.error('❌ Error getting location:', error);
+      // Fallback to default city if location fails
+      this.getWeatherDataByCity('Pune');
+    }
+  }
+
+  /**
+   * Get weather data by city
+   */
+  getWeatherDataByCity(city: string) {
+    this.weatherService.getWeatherDataByCity(city).subscribe((state: any) => {
+      console.log('🟢 Received weather data:', state);
+      if (state) {
+        this.weather = state;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  /**
+   * Get weather data by latitude and longitude
+   */
+  getWeatherDataByLatLon(lat: any, lon: any) {
+    this.weatherService.getWeatherDataByLatLon(lat, lon).subscribe((state: any) => {
+      console.log('🟢 Received weather data:', state);
+      if (state) {
+        this.weather = state;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  /**
+   * Load upcoming farm visits
+   */
+  loadUpcomingFarmVisits() {
+    console.log('🔵 Fetching upcoming farm visits...');
+
+    const visitSub = this.farmVisitService.getAllConsultantVisits().subscribe({
+      next: (response: any) => {
+        console.log('✅ Farm visits fetched:', response.data);
+
+        if (response.data && Array.isArray(response.data)) {
+          this.allFarmVisits = response.data;
+
+          // Filter for upcoming scheduled visits
+          const scheduledVisits = response.data.filter(
+            (visit: any) => visit.visitStatus === 'SCHEDULED'
+          );
+
+          // Sort by visit date (earliest first)
+          const sortedVisits = scheduledVisits.sort((a: any, b: any) => {
+            const dateA = new Date(a.visitDate).getTime();
+            const dateB = new Date(b.visitDate).getTime();
+            return dateA - dateB;
+          });
+
+          // Get the next upcoming visit
+          this.upcomingVisit = sortedVisits.length > 0 ? sortedVisits[0] : null;
+          console.log('📅 Next upcoming visit:', this.upcomingVisit);
+        }
+
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        console.error('❌ Error fetching farm visits:', err);
+        this.upcomingVisit = null;
+        this.cdr.detectChanges();
+      },
+    });
+
+    this.subscriptions.push(visitSub);
+  }
+
+  /**
+   * Get month abbreviation from date
+   */
+  getMonthAbbr(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short' });
+  }
+
+  /**
+   * Get day from date
+   */
+  getDay(dateString: string): string {
+    const date = new Date(dateString);
+    return date.getDate().toString();
   }
 
   ngOnDestroy() {

@@ -5,6 +5,8 @@ import { constants } from 'buffer';
 import { Subscription } from 'rxjs';
 import { FarmerService } from '../../../services/farmerService/farmer-service';
 import { get } from 'http';
+import { WeatherService } from '../../../services/weather/weather.service';
+import { LocationService } from '../../../services/location/location-service';
 
 @Component({
   selector: 'app-farmer-home',
@@ -16,11 +18,11 @@ export class FarmerHome {
   today = new Date(); // Added today's date
   farmerProfile: any = null;
   consultationRequests: any[] = [];
+  weather: any = null;
   summaryCards = [
     { title: 'Active Crops', value: '3', sub: 'Rice, Wheat, Corn', color: 'border-green-400' },
     { title: 'Total Consultations', value: '0', sub: 'Loading...', color: 'border-blue-400' },
-    { title: 'Farm Size', value: '15 acres', sub: 'Soil: Loamy', color: 'border-yellow-400' }, // Placeholder for now unless profile has this
-    { title: 'Success Rate', value: '92%', sub: 'Based on feedback', color: 'border-green-500' },
+    { title: 'Farm Size', value: '--', sub: 'Loading...', color: 'border-yellow-400' },
   ];
 
   private subscription!: Subscription;
@@ -28,12 +30,36 @@ export class FarmerHome {
   constructor(
     private farmerService: FarmerService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private weatherService: WeatherService,
+    private locationService: LocationService
   ) {}
 
   ngOnInit() {
     this.getFarmerProfile();
     this.getConsultationRequest();
+    this.initializeLocationAndWeather();
+  }
+
+  async initializeLocationAndWeather() {
+    try {
+      // 1. Get current location
+      const coords = await this.locationService.getCurrentLocation();
+      console.log('📍 Current Location:', coords);
+
+      // 2. Fetch address details (updates service signals)
+      this.locationService.getAddress(coords.latitude, coords.longitude);
+
+      // 3. Fetch Weather
+      this.getWeatherDataByLatLon(coords.latitude, coords.longitude);
+
+      // Optional: Get extended forecast
+      // this.getPastAndFutureWeather(coords.latitude, coords.longitude);
+    } catch (error) {
+      console.error('❌ Error getting location:', error);
+      // Fallback to default city if location fails
+      this.getWeatherDataByCity('Pune');
+    }
   }
 
   getConsultationRequest() {
@@ -99,6 +125,17 @@ export class FarmerHome {
       console.log('🟢 Received farmer profile:', state);
       if (state) {
         this.farmerProfile = state;
+
+        // Update Farm Size card with dynamic data
+        const farmSizeIndex = this.summaryCards.findIndex((c) => c.title === 'Farm Size');
+        if (farmSizeIndex !== -1) {
+          const farmArea = state.farmAreaHectares || 0;
+          const soilType = this.formatSoilType(state.soilType) || 'Unknown';
+
+          this.summaryCards[farmSizeIndex].value = farmArea > 0 ? `${farmArea} ha` : 'Not set';
+          this.summaryCards[farmSizeIndex].sub = `Soil: ${soilType}`;
+        }
+
         this.cdr.detectChanges();
       }
     });
@@ -117,5 +154,64 @@ export class FarmerHome {
   // Helpers for template
   getInitials(firstName: string, lastName: string): string {
     return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`;
+  }
+
+  /**
+   * Format soil type for display
+   */
+  formatSoilType(soilType: string): string {
+    if (!soilType) return 'Unknown';
+
+    // Convert enum to readable format
+    const soilTypeMap: { [key: string]: string } = {
+      CLAY: 'Clay',
+      SANDY: 'Sandy',
+      LOAMY: 'Loamy',
+      SILT: 'Silt',
+      PEATY: 'Peaty',
+      CHALKY: 'Chalky',
+      SALINE: 'Saline',
+    };
+
+    return soilTypeMap[soilType] || soilType;
+  }
+
+  /*
+  get weather data by city
+  */
+  getWeatherDataByCity(city: string) {
+    this.weatherService.getWeatherDataByCity(city).subscribe((state: any) => {
+      console.log('🟢 Received weather data:', state);
+      if (state) {
+        this.weather = state;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  /*
+   *get weather data by latitude and longitude
+   */
+  getWeatherDataByLatLon(lat: any, lon: any) {
+    this.weatherService.getWeatherDataByLatLon(lat, lon).subscribe((state: any) => {
+      console.log('🟢 Received weather data:', state);
+      if (state) {
+        this.weather = state;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  /*
+   *get past and future weather data by latitude and longitude
+   */
+  getPastAndFutureWeather(lat: number, lon: number) {
+    this.weatherService.getPastAndFutureWeather(lat, lon).subscribe((state: any) => {
+      console.log('🟢 Received weather data:', state);
+      if (state) {
+        this.weather = state;
+        this.cdr.detectChanges();
+      }
+    });
   }
 }

@@ -35,4 +35,5 @@ public class ConsultantUpdateRequest {
 
 //    @Valid
     private AddressDTO address;
+    private String bio;
 }
