@@ -1,0 +1,156 @@
+<!-- Admin Navbar with Purple/Indigo Theme -->
+<div
+  class="h-screen bg-gradient-to-b from-purple-50 to-white border-r border-purple-100 shadow-lg flex flex-col font-sans"
+>
+  <!-- Header with AOS Animation -->
+  <div
+    class="p-6 border-b border-purple-100 flex-shrink-0"
+    data-aos="fade-down"
+    data-aos-duration="600"
+  >
+    <div class="flex items-center gap-3">
+      <div
+        class="w-12 h-12 bg-gradient-to-br from-purple-600 via-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-200 transform hover:scale-110 transition-transform duration-300"
+      >
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+          />
+        </svg>
+      </div>
+      <div>
+        <h2
+          class="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent leading-tight"
+        >
+          Admin
+        </h2>
+        <p class="text-xs text-purple-600 font-semibold">Control Panel</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation with AOS Animations -->
+  <nav
+    class="flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-purple-300 scrollbar-track-transparent"
+  >
+    <ul class="space-y-2">
+      @for(menu of menuItems; track menu.title; let i = $index) {
+      <li data-aos="fade-right" [attr.data-aos-delay]="i * 50" data-aos-duration="500">
+        <a
+          [routerLink]="menu.route"
+          routerLinkActive="bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-200/50"
+          [routerLinkActiveOptions]="{ exact: menu.exact || false }"
+          (click)="onLinkClick()"
+          class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-purple-50 hover:text-purple-700 transition-all duration-300 group relative overflow-hidden"
+        >
+          <!-- Hover Background Effect -->
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          ></div>
+
+          <!-- Icon -->
+          <svg
+            class="w-5 h-5 flex-shrink-0 transition-transform duration-300 group-hover:scale-110 relative z-10"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              [attr.d]="menu.icon"
+            ></path>
+          </svg>
+
+          <span class="font-semibold text-sm relative z-10">{{ menu.title }}</span>
+
+          <!-- Badge (if menu has badge) -->
+          @if(getMenuBadge(menu)) {
+          <span
+            class="ml-auto px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-bold rounded-full relative z-10"
+          >
+            {{ getMenuBadge(menu) }}
+          </span>
+          }
+
+          <!-- Active Indicator -->
+          <div
+            class="absolute right-0 top-0 bottom-0 w-1 bg-white/30 opacity-0 group-hover:opacity-100 transition-opacity rounded-l-full"
+          ></div>
+        </a>
+      </li>
+      }
+    </ul>
+
+    <!-- Divider -->
+    <div class="my-4 border-t border-purple-100" data-aos="fade-right" data-aos-delay="400"></div>
+
+    <!-- Quick Stats Section -->
+    <div
+      class="mt-4 p-4 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl border border-purple-100"
+      data-aos="zoom-in"
+      data-aos-delay="500"
+    >
+      <h3 class="text-xs font-bold text-purple-900 uppercase tracking-wide mb-3">Quick Stats</h3>
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-600">Active Users</span>
+          <span class="text-sm font-bold text-purple-600">2,847</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-600">Pending</span>
+          <span class="text-sm font-bold text-amber-600">89</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Footer with Logout -->
+  <div
+    class="p-4 border-t border-purple-100 flex-shrink-0"
+    data-aos="fade-up"
+    data-aos-duration="600"
+  >
+    <!-- User Profile Card -->
+    <div
+      class="mb-3 p-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-100"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center text-white font-bold shadow-md"
+        >
+          AD
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-bold text-gray-900 truncate">Admin User</p>
+          <p class="text-xs text-purple-600">Super Admin</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logout Button -->
+    <button
+      (click)="onLogout()"
+      class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-300 w-full group transform hover:scale-105 active:scale-95"
+    >
+      <svg
+        class="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+        ></path>
+      </svg>
+      <span class="font-semibold text-sm">Logout</span>
+    </button>
+  </div>
+</div>

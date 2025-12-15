@@ -1,155 +1,86 @@
 package com.server.controller;
 
-import java.util.List; 
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.server.dto.FeedbackRequest;
-import com.server.entity.Feedback;
+import com.server.dto.FeedbackDTO;
+import com.server.dto.FeedbackRequestDTO;
 import com.server.response.ApiResponse;
 import com.server.service.FeedbackService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import lombok.extern.slf4j.Slf4j;
+import java.security.Principal;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/feedback")
-@Slf4j
 public class FeedbackController {
-      @Autowired
-      private FeedbackService feedbackService;
-      
-      @PostMapping("/add/{consultantId}")
-      public ResponseEntity<?> addFeedback(@RequestBody FeedbackRequest feedback, @PathVariable Long consultantId,Authentication authentication){
-    	  log.info("Received request to add feedback for consultantId: {}", consultantId);
-    	  if (authentication == null || !authentication.isAuthenticated()) {
-              log.warn("Unauthorized access attempt to get consultant profile");
-              return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                      .body(new ApiResponse<String>(HttpStatus.UNAUTHORIZED, "Unauthorized"));
-          }
-    	  String username = authentication.getName();
-    	 
-    	  try {
-			Feedback saved=feedbackService.saveFeedback(feedback,username,consultantId);
-            log.info("Feedback added successfully");
-			return ResponseEntity.ok(new ApiResponse(HttpStatus.OK,"feedback store",saved));
-    	  } catch (Exception e) {
-              log.error("Error while adding feedback: {}", e.getMessage());
-    		  return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(HttpStatus.INTERNAL_SERVER_ERROR,"Failed to fetch feedback " + e.getMessage()));
-		}
-    	  
-      }
-      
-      
-      
 
-      @GetMapping("/consultant/{id}")
-      public ResponseEntity<?> getFeedbacks(@PathVariable Long id) {
+    @Autowired
+    private FeedbackService feedbackService;
 
-          log.info("Fetching feedback list for consultantId: {}", id);
+    @PostMapping
+    public ResponseEntity<ApiResponse<FeedbackDTO>> createFeedback(@RequestBody FeedbackRequestDTO request,
+            Principal principal) {
+        FeedbackDTO feedback = feedbackService.createFeedback(request, principal.getName());
+        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.CREATED, "Feedback submitted successfully", feedback),
+                HttpStatus.CREATED);
+    }
 
-          try {
-              List<Feedback> list = feedbackService.getFeedbackForConsultant(id);
-              log.info("Fetched {} feedback entries", list.size());
-              return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK, "Feedback fetched", list));
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<FeedbackDTO>> updateFeedback(@PathVariable Long id,
+            @RequestBody FeedbackRequestDTO request, Principal principal) {
+        FeedbackDTO feedback = feedbackService.updateFeedback(id, request, principal.getName());
+        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK, "Feedback updated successfully", feedback),
+                HttpStatus.OK);
+    }
 
-          } catch (Exception e) {
-              log.error("Error while fetching feedback list: {}", e.getMessage());
-              return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                   .body(new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to fetch feedback"));
-          }
-      }
-      
-      
-      
-      
-    
-      // ============ UPDATE FEEDBACK ============
-      @PutMapping("/update/{id}")
-      public ResponseEntity<?> updateFeedback(@PathVariable Long id, @RequestBody Feedback updated) {
-          log.info("Updating feedback id: {}", id);
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<FeedbackDTO>> getFeedbackById(@PathVariable Long id) {
+        FeedbackDTO feedback = feedbackService.getFeedbackById(id);
+        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK, "Feedback fetched successfully", feedback),
+                HttpStatus.OK);
+    }
 
-          try {
-              Feedback result = feedbackService.updateFeedback(id, updated);
+    @GetMapping("/consultation/{consultationId}")
+    public ResponseEntity<ApiResponse<FeedbackDTO>> getFeedbackByConsultationId(@PathVariable Long consultationId) {
+        FeedbackDTO feedback = feedbackService.getFeedbackByConsultationId(consultationId);
+        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK, "Feedback fetched successfully", feedback),
+                HttpStatus.OK);
+    }
 
-              if (result == null) {
-                  return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                       .body(new ApiResponse<>(HttpStatus.NOT_FOUND, "Feedback not found"));
-              }
+    @GetMapping("/consultation/{consultationId}/exists")
+    public ResponseEntity<ApiResponse<Boolean>> hasFeedback(@PathVariable Long consultationId) {
+        boolean exists = feedbackService.hasFeedback(consultationId);
+        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK, "Check successful", exists), HttpStatus.OK);
+    }
 
-              return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK, "Feedback updated", result));
+    @GetMapping("/consultant/{consultantId}")
+    public ResponseEntity<ApiResponse<List<FeedbackDTO>>> getFeedbackByConsultantId(@PathVariable Long consultantId) {
+        List<FeedbackDTO> feedbacks = feedbackService.getFeedbackByConsultantId(consultantId);
+        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK, "Feedbacks fetched successfully", feedbacks),
+                HttpStatus.OK);
+    }
 
-          } catch (Exception e) {
-              log.error("Error updating feedback: {}", e.getMessage());
-              return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                   .body(new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update feedback"));
-          }
-      }
+    @GetMapping("/consultant/{consultantId}/stats")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getConsultantStats(@PathVariable Long consultantId) {
+        Map<String, Object> stats = feedbackService.getConsultantFeedbackStats(consultantId);
+        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK, "Stats fetched successfully", stats),
+                HttpStatus.OK);
+    }
 
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-//      @PutMapping("/update/{id}")
-//      public ResponseEntity<?> updateFeedback(@PathVariable Long id, @RequestBody Feedback updated) {
-//    	  log.info("Updating feedback with id: {}", id);
-//
-//    	    try {
-//    	        Feedback result = feedbackService.updateFeedback(id, updated);
-//
-//    	        if (result == null) {
-//    	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(HttpStatus.NOT_FOUND, "Feedback not found"));
-//    	        }
-//
-//    	        return ResponseEntity.ok((new ApiResponse<>(HttpStatus.OK, "Feedback updated", result));
-//
-//    	    } catch (Exception e) {
-//    	        log.error("Error updating feedback: {}", e.getMessage());
-//    	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//    	                             .body(new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to update feedback"));
-//    	    }
-//      }
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<FeedbackDTO>>> getAllFeedback() {
+        List<FeedbackDTO> feedbacks = feedbackService.getAllFeedback();
+        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK, "All feedbacks fetched successfully", feedbacks),
+                HttpStatus.OK);
+    }
 
-      
-      @DeleteMapping("/delete/{id}")
-      public ResponseEntity<?> deleteFeedback(@PathVariable Long id) {
-          log.info("Deleting feedback id: {}", id);
-
-          try {
-              boolean deleted = feedbackService.deleteFeedback(id);
-
-              if (!deleted) {
-                  return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                       .body(new ApiResponse<>(HttpStatus.NOT_FOUND, "Feedback not found"));
-              }
-
-              return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK, "Feedback deleted"));
-
-          } catch (Exception e) {
-              log.error("Error deleting feedback: {}", e.getMessage());
-              return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                   .body(new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete feedback"));
-          }
-      }
-      
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteFeedback(@PathVariable Long id) {
+        feedbackService.deleteFeedback(id);
+        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.NO_CONTENT, "Feedback deleted successfully"),
+                HttpStatus.NO_CONTENT);
+    }
 }

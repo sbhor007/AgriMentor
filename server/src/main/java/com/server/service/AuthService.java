@@ -20,6 +20,7 @@ import com.server.dto.FarmerRegistrationResponse;
 import com.server.dto.LoginRequest;
 import com.server.dto.LoginResponce;
 import com.server.dto.RegisterRequest;
+import com.server.entity.Address;
 import com.server.entity.Consultant;
 import com.server.entity.Farmer;
 import com.server.entity.User;
@@ -39,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AuthService {
 
-//    private final AuthController authController;
+	// private final AuthController authController;
 	@Autowired
 	private UserRepository userRepository;
 	@Autowired
@@ -54,9 +55,9 @@ public class AuthService {
 	private AuthenticationManager authenticationManager;
 	@Autowired
 	private JwtUtil jwtUtil;
-//	@Autowired
-//	private ConsultantService consultantService;
-	
+	// @Autowired
+	// private ConsultantService consultantService;
+
 	// Constructor injection (if needed)
 	public User register(RegisterRequest request) {
 		System.out.println("Auth Service Test" + request.toString());
@@ -127,13 +128,24 @@ public class AuthService {
 			consultant.setExpertiseArea(request.getExpertiseArea());
 			consultant.setExperienceYears(Integer.parseInt(request.getExperienceYears()));
 			consultant.setQualifications(request.getQualifications());
+			consultant.setSpecialization(request.getSpecialization());
+			consultant.setBio(request.getBio());
+			Address address = new Address();
+			address.setCity(request.getAddress().getCity());
+			address.setState(request.getAddress().getState());
+			address.setCountry(request.getAddress().getCountry());
+			address.setPinCode(request.getAddress().getPinCode());
+			address.setStreet(request.getAddress().getStreet());
+			address.setLatitude(request.getAddress().getLatitude());
+			address.setLongitude(request.getAddress().getLongitude());
+			consultant.setAddress(address);
 			consultant.setVerificationStatus(VerificationStatus.PENDING);
 			consultant.setIsActive(false);
 			consultant.setIsVerified(false);
 
 			consultantRepository.save(consultant);
 
-			// 3. Handle File Upload
+			// 3. Handle File Upload with cross-platform support
 			MultipartFile file = request.getVerificationDocument();
 			log.info("Multipart File: {}", file);
 
@@ -141,49 +153,20 @@ public class AuthService {
 				throw new RuntimeException("Verification document is required");
 			}
 
-//			// Absolute upload path (WORKS in JAR too)
-//			String projectRoot = System.getProperty("user.dir");
-//			String uploadDir = projectRoot + "/uploads/consultants/";
-//
-//			File directory = new File(uploadDir);
-//			if (!directory.exists()) {
-//				directory.mkdirs();
-//			}
-//
-//			String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-//			String uploadPath = uploadDir + fileName;
-//
-//			File dest = new File(uploadPath);
-//			file.transferTo(dest);
-//
-//			log.info("File uploaded to: {}", uploadPath);
-			
-			
-			
-			// Read file bytes IMMEDIATELY before Tomcat temp file is deleted
-            byte[] fileBytes = file.getBytes();
-            log.info("File read into memory: {} bytes", fileBytes.length);
+			// Use Paths API for cross-platform compatibility (Works on Windows, Linux, Mac)
+			String projectRoot = System.getProperty("user.dir");
+			Path uploadDir = Paths.get(projectRoot, "uploads", "consultants");
 
-            // Use Paths API for cross-platform compatibility
-            String projectRoot = System.getProperty("user.dir");
-            Path uploadDir = Paths.get(projectRoot, "uploads", "consultants");
-            
-            // Create directories if they don't exist
-            Files.createDirectories(uploadDir);
+			// Create directories if they don't exist
+			Files.createDirectories(uploadDir);
 
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            Path uploadPath = uploadDir.resolve(fileName);
+			String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+			Path uploadPath = uploadDir.resolve(fileName);
 
-            // Write bytes directly to file (more reliable on Windows)
-            Files.write(uploadPath, fileBytes);
+			// Transfer file to the resolved path
+			file.transferTo(uploadPath.toFile());
 
-            log.info("File saved successfully to: {}", uploadPath.toAbsolutePath());
-			
-			
-			
-			
-			
-			
+			log.info("File uploaded to: {}", uploadPath.toAbsolutePath());
 
 			// 4. Create VerificationDocument Entity
 			VerificationDocument document = new VerificationDocument();
@@ -207,7 +190,7 @@ public class AuthService {
 					consultant.getVerificationStatus()));
 
 		} catch (Exception e) {
-			log.error("Error during consultant registration: {}", e.getMessage());
+			log.error("Error during consultant registration: {}", e.getMessage(), e);
 			throw new RuntimeException("Consultant Registration Failed: " + e.getMessage());
 		}
 	}
@@ -217,25 +200,24 @@ public class AuthService {
 		log.info("Login attempt for user: {}", loginRequest.getUsername());
 		Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-		
+
 		log.info("Authentication successful for user: {}", loginRequest.getUsername());
 		User user = (User) authentication.getPrincipal();
-		
-		if(user == null) {
+
+		if (user == null) {
 			log.error("User not found after authentication for username: {}", loginRequest.getUsername());
 			throw new RuntimeException("Invalid Credentials");
 		}
-		
-		
+
 		log.info("User details retrieved: {}", user);
 		if (user.getRole() != loginRequest.getRole()) {
 			log.error("Role mismatch: expected {}, found {}", loginRequest.getRole(), user.getRole());
 			throw new RuntimeException("Invalid Credentials");
 		}
-		
-		if(user.getRole() == Role.CONSULTANT) {
+
+		if (user.getRole() == Role.CONSULTANT) {
 			log.info("Checking consultant verification status for user: {}", user.getEmail());
-			if(user.getIsVerified() == false) {
+			if (user.getIsVerified() == false) {
 				log.error("Consultant not verified: {}", user.getEmail());
 				throw new RuntimeException("Consultant Not Verified Yet");
 			}
@@ -246,4 +228,7 @@ public class AuthService {
 		return Optional.of(new LoginResponce(user.getId(), token, user.getRole().name()));
 	}
 
+	public boolean isUserAlreadyExist(String username, Role role) {
+		return this.userRepository.existsByEmailAndRole(username, role);
+	}
 }

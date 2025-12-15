@@ -1,0 +1,137 @@
+<div *ngIf="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+  <!-- Backdrop with blur -->
+  <div
+    class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"
+    (click)="closeModal()"
+  ></div>
+
+  <!-- Modal Container -->
+  <div
+    class="relative w-full max-w-lg transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all sm:my-8"
+  >
+    <!-- Header with subtle border -->
+    <div class="border-b border-gray-100 px-6 py-5 flex items-center justify-between bg-gray-50/50">
+      <div>
+        <h3 class="text-xl font-bold text-gray-900">Schedule Farm Visit</h3>
+        <p class="mt-1 text-sm text-gray-500">Set up a new appointment with the farmer.</p>
+      </div>
+      <button
+        (click)="closeModal()"
+        class="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 transition-colors"
+      >
+        <span class="sr-only">Close</span>
+        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path
+            fill-rule="evenodd"
+            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Form Content with formGroup directive -->
+    <form [formGroup]="farmVisitForm" class="px-6 py-6 space-y-5">
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <!-- Date Input -->
+        <div class="space-y-1.5">
+          <label class="block text-sm font-medium text-gray-700">Visit Date</label>
+          <div class="relative">
+            <input
+              type="date"
+              formControlName="date"
+              [min]="minDate"
+              class="block w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-2.5 text-gray-900 focus:border-green-500 focus:bg-white focus:ring-green-500 sm:text-sm transition-colors shadow-sm"
+              [class.border-red-300]="f['date'].touched && f['date'].invalid"
+              [class.focus:border-red-500]="f['date'].touched && f['date'].invalid"
+              [class.focus:ring-red-500]="f['date'].touched && f['date'].invalid"
+            />
+          </div>
+          <p
+            *ngIf="f['date'].touched && f['date'].errors?.['required']"
+            class="text-xs text-red-600 mt-1 flex items-center gap-1"
+          >
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            Visit date is required
+          </p>
+          <p
+            *ngIf="f['date'].touched && f['date'].errors?.['pastDate']"
+            class="text-xs text-red-600 mt-1 flex items-center gap-1"
+          >
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            Visit date must be in the future
+          </p>
+        </div>
+
+        <!-- Time Input -->
+        <div class="space-y-1.5">
+          <label class="block text-sm font-medium text-gray-700">Visit Time</label>
+          <div class="relative">
+            <input
+              type="time"
+              formControlName="time"
+              class="block w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-2.5 text-gray-900 focus:border-green-500 focus:bg-white focus:ring-green-500 sm:text-sm transition-colors shadow-sm"
+              [class.border-red-300]="f['time'].touched && f['time'].invalid"
+              [class.focus:border-red-500]="f['time'].touched && f['time'].invalid"
+              [class.focus:ring-red-500]="f['time'].touched && f['time'].invalid"
+            />
+          </div>
+          <p
+            *ngIf="f['time'].touched && f['time'].errors?.['required']"
+            class="text-xs text-red-600 mt-1 flex items-center gap-1"
+          >
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            Visit time is required
+          </p>
+        </div>
+      </div>
+
+      <!-- Notes Input -->
+      <div class="space-y-1.5">
+        <label class="block text-sm font-medium text-gray-700">
+          Visit Notes <span class="text-gray-400 font-normal">(Optional)</span>
+        </label>
+        <textarea
+          formControlName="notes"
+          rows="4"
+          class="block w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-green-500 focus:bg-white focus:ring-green-500 sm:text-sm transition-colors shadow-sm resize-none"
+          placeholder="Add any specific details or requirements for this visit..."
+        ></textarea>
+      </div>
+    </form>
+
+    <!-- Footer Actions -->
+    <div class="bg-gray-50 px-6 py-4 flex flex-row-reverse gap-3 border-t border-gray-100">
+      <button
+        (click)="submitSchedule()"
+        class="inline-flex w-full justify-center rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 sm:w-auto transition-all"
+      >
+        Confirm Schedule
+      </button>
+      <button
+        (click)="closeModal()"
+        class="inline-flex w-full justify-center rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:w-auto transition-all"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>

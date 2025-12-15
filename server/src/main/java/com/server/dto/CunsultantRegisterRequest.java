@@ -1,5 +1,6 @@
 package com.server.dto;
 
+import jakarta.persistence.Column;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.server.enumeration.Role;
@@ -23,7 +24,10 @@ public class CunsultantRegisterRequest {
     private String expertiseArea;
     private String experienceYears;
     private String qualifications;
+    private String specialization;
+    private String bio;
     private MultipartFile verificationDocument;
+    private AddressDTO address;
     
     
 }

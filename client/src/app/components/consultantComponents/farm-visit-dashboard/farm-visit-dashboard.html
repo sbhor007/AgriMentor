@@ -1,0 +1,277 @@
+<div class="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 p-6">
+  <div class="max-w-7xl mx-auto space-y-6">
+    
+    <!-- Header -->
+    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-emerald-100 p-6">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+              <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            Farm Visit Schedule
+          </h1>
+          <p class="text-gray-600 mt-2">Manage your farm visit appointments</p>
+        </div>
+
+        <!-- Search -->
+        <div class="relative w-full md:w-96">
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="filterVisits()"
+            placeholder="Search by topic, farmer, or location..."
+            class="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
+          />
+          <svg class="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-emerald-100 p-2">
+      <div class="flex flex-wrap gap-2">
+        <button
+          (click)="switchTab('today')"
+          [class.bg-gradient-to-r]="activeTab === 'today'"
+          [class.from-emerald-500]="activeTab === 'today'"
+          [class.to-teal-600]="activeTab === 'today'"
+          [class.text-white]="activeTab === 'today'"
+          [class.shadow-lg]="activeTab === 'today'"
+          [class.text-gray-700]="activeTab !== 'today'"
+          [class.hover:bg-gray-100]="activeTab !== 'today'"
+          class="flex-1 min-w-[120px] px-4 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Today
+          <span class="ml-1 px-2 py-0.5 rounded-full text-xs font-bold" [class.bg-white/30]="activeTab === 'today'" [class.bg-emerald-100]="activeTab !== 'today'" [class.text-emerald-700]="activeTab !== 'today'">
+            {{ getTabCount('today') }}
+          </span>
+        </button>
+
+        <button
+          (click)="switchTab('upcoming')"
+          [class.bg-gradient-to-r]="activeTab === 'upcoming'"
+          [class.from-emerald-500]="activeTab === 'upcoming'"
+          [class.to-teal-600]="activeTab === 'upcoming'"
+          [class.text-white]="activeTab === 'upcoming'"
+          [class.shadow-lg]="activeTab === 'upcoming'"
+          [class.text-gray-700]="activeTab !== 'upcoming'"
+          [class.hover:bg-gray-100]="activeTab !== 'upcoming'"
+          class="flex-1 min-w-[120px] px-4 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+          Upcoming
+          <span class="ml-1 px-2 py-0.5 rounded-full text-xs font-bold" [class.bg-white/30]="activeTab === 'upcoming'" [class.bg-blue-100]="activeTab !== 'upcoming'" [class.text-blue-700]="activeTab !== 'upcoming'">
+            {{ getTabCount('upcoming') }}
+          </span>
+        </button>
+
+        <button
+          (click)="switchTab('completed')"
+          [class.bg-gradient-to-r]="activeTab === 'completed'"
+          [class.from-emerald-500]="activeTab === 'completed'"
+          [class.to-teal-600]="activeTab === 'completed'"
+          [class.text-white]="activeTab === 'completed'"
+          [class.shadow-lg]="activeTab === 'completed'"
+          [class.text-gray-700]="activeTab !== 'completed'"
+          [class.hover:bg-gray-100]="activeTab !== 'completed'"
+          class="flex-1 min-w-[120px] px-4 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Completed
+          <span class="ml-1 px-2 py-0.5 rounded-full text-xs font-bold" [class.bg-white/30]="activeTab === 'completed'" [class.bg-green-100]="activeTab !== 'completed'" [class.text-green-700]="activeTab !== 'completed'">
+            {{ getTabCount('completed') }}
+          </span>
+        </button>
+
+        <button
+          (click)="switchTab('canceled')"
+          [class.bg-gradient-to-r]="activeTab === 'canceled'"
+          [class.from-emerald-500]="activeTab === 'canceled'"
+          [class.to-teal-600]="activeTab === 'canceled'"
+          [class.text-white]="activeTab === 'canceled'"
+          [class.shadow-lg]="activeTab === 'canceled'"
+          [class.text-gray-700]="activeTab !== 'canceled'"
+          [class.hover:bg-gray-100]="activeTab !== 'canceled'"
+          class="flex-1 min-w-[120px] px-4 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Canceled
+          <span class="ml-1 px-2 py-0.5 rounded-full text-xs font-bold" [class.bg-white/30]="activeTab === 'canceled'" [class.bg-gray-100]="activeTab !== 'canceled'" [class.text-gray-700]="activeTab !== 'canceled'">
+            {{ getTabCount('canceled') }}
+          </span>
+        </button>
+
+        <button
+          (click)="switchTab('missed')"
+          [class.bg-gradient-to-r]="activeTab === 'missed'"
+          [class.from-emerald-500]="activeTab === 'missed'"
+          [class.to-teal-600]="activeTab === 'missed'"
+          [class.text-white]="activeTab === 'missed'"
+          [class.shadow-lg]="activeTab === 'missed'"
+          [class.text-gray-700]="activeTab !== 'missed'"
+          [class.hover:bg-gray-100]="activeTab !== 'missed'"
+          class="flex-1 min-w-[120px] px-4 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          Missed
+          <span class="ml-1 px-2 py-0.5 rounded-full text-xs font-bold" [class.bg-white/30]="activeTab === 'missed'" [class.bg-red-100]="activeTab !== 'missed'" [class.text-red-700]="activeTab !== 'missed'">
+            {{ getTabCount('missed') }}
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex items-center justify-center py-20">
+      <div class="text-center">
+        <div class="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p class="text-gray-600 font-medium">Loading farm visits...</p>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && filteredVisits.length === 0" class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-emerald-100 p-12 text-center">
+      <div class="w-20 h-20 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold text-gray-900 mb-2">No visits found</h3>
+      <p class="text-gray-600">There are no farm visits in this category.</p>
+    </div>
+
+    <!-- Visit Cards -->
+    <div *ngIf="!isLoading && filteredVisits.length > 0" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div
+        *ngFor="let visit of filteredVisits"
+        class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-emerald-100 p-6 hover:shadow-xl transition-all duration-300 group"
+      >
+        <!-- Header -->
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex-1">
+            <h3 class="text-lg font-bold text-gray-900 mb-1 group-hover:text-emerald-600 transition-colors">
+              {{ visit.consultationTopic }}
+            </h3>
+            <div class="flex items-center gap-2 text-sm text-gray-600">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+              <span>{{ visit.farmerName || 'Farmer' }}</span>
+            </div>
+          </div>
+
+          <!-- Status Badge -->
+          <span
+            class="px-3 py-1 rounded-full text-xs font-bold"
+            [class.bg-emerald-100]="visit.visitStatus === 'SCHEDULED'"
+            [class.text-emerald-700]="visit.visitStatus === 'SCHEDULED'"
+            [class.bg-green-100]="visit.visitStatus === 'COMPLETED'"
+            [class.text-green-700]="visit.visitStatus === 'COMPLETED'"
+            [class.bg-gray-100]="visit.visitStatus === 'CANCELLED'"
+            [class.text-gray-700]="visit.visitStatus === 'CANCELLED'"
+            [class.bg-red-100]="visit.visitStatus === 'MISSED'"
+            [class.text-red-700]="visit.visitStatus === 'MISSED'"
+          >
+            {{ visit.visitStatus }}
+          </span>
+        </div>
+
+        <!-- Details -->
+        <div class="space-y-3 mb-4">
+          <!-- Date & Time -->
+          <div class="flex items-center gap-3 text-sm">
+            <div class="w-10 h-10 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-lg flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="font-semibold text-gray-900">{{ formatDate(visit.scheduledDate) }}</p>
+              <p class="text-gray-600">{{ formatTime(visit.scheduledDate) }}</p>
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div class="flex items-center gap-3 text-sm" *ngIf="visit.farmAddress">
+            <div class="w-10 h-10 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-lg flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="font-semibold text-gray-900">{{ visit.farmAddress.city }}, {{ visit.farmAddress.state }}</p>
+              <p class="text-gray-600">{{ visit.farmAddress.street }}</p>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="flex items-start gap-3 text-sm" *ngIf="visit.visitNotes">
+            <div class="w-10 h-10 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="font-semibold text-gray-900 mb-1">Notes</p>
+              <p class="text-gray-600">{{ visit.visitNotes }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-2 pt-4 border-t border-gray-200">
+          <button
+            (click)="viewDetails(visit.consultationId)"
+            class="flex-1 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 flex items-center justify-center gap-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+            View Details
+          </button>
+
+          <button
+            *ngIf="visit.visitStatus === 'SCHEDULED'"
+            (click)="completeVisit(visit.id)"
+            class="px-4 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition-all duration-200 flex items-center justify-center gap-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Complete
+          </button>
+
+          <button
+            *ngIf="visit.visitStatus === 'SCHEDULED'"
+            (click)="cancelVisit(visit.id)"
+            class="px-4 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 transition-all duration-200 flex items-center justify-center gap-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

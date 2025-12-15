@@ -24,53 +24,57 @@ import lombok.*;
 @NoArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
 @EntityListeners(AuditingEntityListener.class)
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class User implements UserDetails {
 
-   @Id
-   @GeneratedValue(strategy = GenerationType.IDENTITY)
-   private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-   private String firstName;
-   private String lastName;
+    private String firstName;
+    private String lastName;
 
-   @Column(unique = true, nullable = false)
-   private String phone;
+    @Column(unique = true, nullable = false)
+    private String phone;
 
-   @Column(unique = true, nullable = false)
-   private String email;
+    @Column(unique = true, nullable = false)
+    private String email;
 
-   private String password;
+    private String password;
 
-   @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-   @JoinColumn(name = "address_id")
-   @JsonManagedReference                // ⬅️ handles JSON correctly
-   @ToString.Exclude
-   private Address address;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @JoinColumn(name = "address_id")
+    @JsonManagedReference // ⬅️ handles JSON correctly
+    private Address address;
 
-   @Enumerated(EnumType.STRING)
-   @Column(nullable = false)
-   private Role role;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
 
-   @Column(nullable = false)
-   private Boolean isActive = true;     // ⬅️ Removed @Value
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_picture_id")
+    @JsonManagedReference
+    private UserProfilePicture profilePicture;
 
-   @Column(nullable = false)
-   private Boolean isVerified = true;   // ⬅️ Removed @Value
+    @Column(nullable = false)
+    private Boolean isActive = true; // ⬅️ Removed @Value
 
-   @CreatedDate
-   private LocalDateTime createdAt;
+    @Column(nullable = false)
+    private Boolean isVerified = true; // ⬅️ Removed @Value
 
-   @LastModifiedDate
-   private LocalDateTime updatedAt;
+    @CreatedDate
+    private LocalDateTime createdAt;
 
-   @Override
-   public Collection<? extends GrantedAuthority> getAuthorities() {
-       return List.of(new SimpleGrantedAuthority("ROLE_" + role));
-   }
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
-   @Override
-   public String getUsername() {
-       return this.email;
-   }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role));
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
 }

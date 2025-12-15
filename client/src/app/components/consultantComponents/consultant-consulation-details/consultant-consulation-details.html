@@ -1,0 +1,750 @@
+<div class="min-h-screen w-full px-6 md:px-8 animation-fade-in-up">
+  <div class="w-full mx-auto space-y-6">
+    <!-- Top Bar: Breadcrumb & Back -->
+    <div class="flex items-center justify-between">
+      <!-- <button
+        (click)="goBack()"
+        class="flex items-center gap-2 text-gray-500 hover:text-blue-600 transition-colors font-medium"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+        Back to Requests
+      </button>
+      <div
+        class="text-sm font-medium text-blue-500 bg-white px-3 py-1.5 rounded-full border border-blue-100 shadow-sm"
+      >
+        Request ID: #{{ consultation?.id || '...' }}
+      </div> -->
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-20 min-h-[400px]">
+      <div
+        class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"
+      ></div>
+      <p class="text-gray-500 mt-4 text-sm font-medium">Loading details...</p>
+    </div>
+
+    <div *ngIf="!isLoading && consultation" class="flex flex-col gap-6">
+      <!-- Header Card -->
+      <div
+        class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 relative overflow-hidden"
+      >
+        <div
+          class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"
+        ></div>
+
+        <div class="flex flex-col md:flex-row md:items-start justify-between gap-6 relative z-10">
+          <div class="flex items-start gap-5">
+            <div
+              class="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-blue-200"
+            >
+              {{ consultation.farmer.firstName.charAt(0) }}
+            </div>
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900">
+                {{ consultation.farmer.firstName }} {{ consultation.farmer.lastName }}
+              </h1>
+              <p class="text-gray-500 font-medium">
+                {{
+                  consultation.farmer.address?.city ||
+                    consultation.farmAddress?.city ||
+                    'Location not available'
+                }}
+                <span
+                  *ngIf="consultation.farmer.address?.state || consultation.farmAddress?.state"
+                  class="text-gray-400"
+                >
+                  ,
+                  {{ consultation.farmer.address?.state || consultation.farmAddress?.state }}
+                </span>
+              </p>
+
+              <div class="flex flex-wrap items-center gap-3 mt-3">
+                <a
+                  href="mailto:{{ consultation.farmer.email }}"
+                  class="flex items-center gap-1.5 text-sm text-gray-600 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors border border-gray-100"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
+                  </svg>
+                  {{ consultation.farmer.email }}
+                </a>
+                <a
+                  href="tel:{{ consultation.farmer.phone }}"
+                  class="flex items-center gap-1.5 text-sm text-gray-600 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors border border-gray-100"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    />
+                  </svg>
+                  {{ consultation.farmer.phone }}
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col items-end gap-2">
+            <span
+              class="px-4 py-2 rounded-xl text-sm font-bold border"
+              [ngClass]="{
+                'bg-amber-50 text-amber-700 border-amber-100':
+                  consultation.consultationRequestStatus === 'PENDING',
+                'bg-green-50 text-green-700 border-green-100':
+                  consultation.consultationRequestStatus === 'APPROVED',
+                'bg-blue-50 text-blue-700 border-blue-100':
+                  consultation.consultationRequestStatus === 'COMPLETED',
+                'bg-red-50 text-red-700 border-red-100':
+                  consultation.consultationRequestStatus === 'REJECTED'
+              }"
+            >
+              {{ consultation.consultationRequestStatus }}
+            </span>
+            <p class="text-xs text-gray-400">
+              Created {{ consultation.createdAt | date : 'mediumDate' }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Grid -->
+      <div class="grid lg:grid-cols-3 gap-6">
+        <!-- Left Column: Details (2 spans) -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Request Info -->
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <span class="w-1.5 h-6 bg-blue-600 rounded-full"></span>
+              Consultation Topic
+            </h3>
+            <div class="space-y-4">
+              <div>
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                  >Subject</label
+                >
+                <p class="text-lg font-medium text-gray-900">{{ consultation.topic }}</p>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                <label
+                  class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block"
+                  >Description</label
+                >
+                <p class="text-gray-700 leading-relaxed">{{ consultation.description }}</p>
+              </div>
+            </div>
+
+            <div class="grid sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-100">
+              <div>
+                <label class="text-xs text-gray-500 block">Crop Name</label>
+                <p class="font-semibold text-gray-900">{{ consultation.crop.name }}</p>
+              </div>
+              <div>
+                <label class="text-xs text-gray-500 block">Type</label>
+                <p class="font-semibold text-gray-900">{{ consultation.crop.type }}</p>
+              </div>
+              <div>
+                <label class="text-xs text-gray-500 block">Category</label>
+                <p class="font-semibold text-gray-900">{{ consultation.crop.category }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabs Section for Visits & Reports (Only for APPROVED/COMPLETED) -->
+          <div
+            *ngIf="
+              consultation.consultationRequestStatus === 'APPROVED' ||
+              consultation.consultationRequestStatus === 'COMPLETED'
+            "
+            class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-h-[400px]"
+          >
+            <div class="border-b border-gray-100 px-6 pt-4">
+              <div class="flex gap-6">
+                <button
+                  (click)="activeTab = 'details'"
+                  class="pb-3 text-sm font-semibold border-b-2 transition-colors"
+                  [ngClass]="
+                    activeTab === 'details'
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                  "
+                >
+                  Visit Schedule
+                </button>
+                <button
+                  (click)="activeTab = 'reports'"
+                  class="pb-3 text-sm font-semibold border-b-2 transition-colors"
+                  [ngClass]="
+                    activeTab === 'reports'
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                  "
+                >
+                  Reports & Notes
+                </button>
+                <button
+                  *ngIf="consultation.consultationRequestStatus === 'COMPLETED'"
+                  (click)="activeTab = 'feedback'"
+                  class="pb-3 text-sm font-semibold border-b-2 transition-colors"
+                  [ngClass]="
+                    activeTab === 'feedback'
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                  "
+                >
+                  Feedback
+                </button>
+              </div>
+            </div>
+
+            <div class="p-6">
+              <!-- VISITS TAB -->
+              <div *ngIf="activeTab === 'details'" class="space-y-4 animation-fade-in">
+                <div class="flex justify-between items-center mb-4">
+                  <h4 class="font-bold text-gray-800">Scheduled Visits</h4>
+                  <button
+                    (click)="openAddVisit()"
+                    class="text-sm font-semibold text-white bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                  >
+                    + Schedule Visit
+                  </button>
+                </div>
+
+                <div
+                  *ngIf="visits.length === 0"
+                  class="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200"
+                >
+                  <svg
+                    class="w-12 h-12 mx-auto text-gray-400 mb-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    ></path>
+                  </svg>
+                  <p class="text-gray-500 text-sm font-medium">No visits scheduled yet</p>
+                  <p class="text-gray-400 text-xs mt-1">
+                    Click "Schedule Visit" to add a new farm visit
+                  </p>
+                </div>
+
+                <!-- Visit Cards -->
+                <div
+                  *ngFor="let v of visits"
+                  class="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg transition-all"
+                >
+                  <div class="flex gap-4">
+                    <!-- Date Badge -->
+                    <div class="flex-shrink-0">
+                      <div
+                        class="w-20 h-20 rounded-xl flex flex-col items-center justify-center font-bold shadow-sm"
+                        [ngClass]="{
+                          'bg-blue-50 border-2 border-blue-200 text-blue-600':
+                            v.visitStatus === 'SCHEDULED',
+                          'bg-green-50 border-2 border-green-200 text-green-600':
+                            v.visitStatus === 'COMPLETED',
+                          'bg-red-50 border-2 border-red-200 text-red-600':
+                            v.visitStatus === 'CANCELLED',
+                          'bg-gray-50 border-2 border-gray-200 text-gray-600':
+                            v.visitStatus === 'MISSED'
+                        }"
+                      >
+                        <span class="text-xs uppercase tracking-wide">{{
+                          v.scheduledDate | date : 'MMM'
+                        }}</span>
+                        <span class="text-2xl leading-none my-1">{{
+                          v.scheduledDate | date : 'dd'
+                        }}</span>
+                        <span class="text-xs">{{ v.scheduledDate | date : 'yyyy' }}</span>
+                      </div>
+                    </div>
+
+                    <!-- Visit Details -->
+                    <div class="flex-1 min-w-0">
+                      <!-- Header -->
+                      <div class="flex justify-between items-start mb-3">
+                        <div class="flex-1">
+                          <h5 class="font-bold text-gray-900 text-lg">Farm Visit</h5>
+                          <p class="text-sm text-gray-500 mt-0.5">
+                            {{ v.scheduledDate | date : 'EEEE, h:mm a' }}
+                          </p>
+                        </div>
+                        <!-- Status Badge -->
+                        <span
+                          class="text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap ml-3"
+                          [ngClass]="{
+                            'bg-blue-100 text-blue-700': v.visitStatus === 'SCHEDULED',
+                            'bg-green-100 text-green-700': v.visitStatus === 'COMPLETED',
+                            'bg-red-100 text-red-700': v.visitStatus === 'CANCELLED',
+                            'bg-gray-100 text-gray-700': v.visitStatus === 'MISSED'
+                          }"
+                        >
+                          {{ v.visitStatus }}
+                        </span>
+                      </div>
+
+                      <!-- Visit Notes -->
+                      <p class="text-sm text-gray-600 mb-3 line-clamp-2">
+                        {{ v.visitNotes || 'No notes provided' }}
+                      </p>
+
+                      <!-- Overdue Warning -->
+                      <div *ngIf="v.isOverdue && v.visitStatus === 'SCHEDULED'" class="mb-3">
+                        <div
+                          class="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 px-3 py-2 rounded-lg border border-amber-200"
+                        >
+                          <svg
+                            class="w-4 h-4 flex-shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                            ></path>
+                          </svg>
+                          <span class="font-medium">This visit is overdue</span>
+                        </div>
+                      </div>
+
+                      <!-- Action Buttons - Simplified -->
+                      <div class="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
+                        <!-- Quick Actions for SCHEDULED visits -->
+                        <div *ngIf="v.visitStatus === 'SCHEDULED'" class="flex gap-2">
+                          <button
+                            (click)="completeVisit(v.id)"
+                            class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors"
+                          >
+                            <svg
+                              class="w-3.5 h-3.5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M5 13l4 4L19 7"
+                              ></path>
+                            </svg>
+                            Mark Complete
+                          </button>
+                          <button
+                            (click)="cancelVisit(v.id)"
+                            class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            <svg
+                              class="w-3.5 h-3.5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"
+                              ></path>
+                            </svg>
+                            Cancel
+                          </button>
+                        </div>
+
+                        <!-- Status Change Dropdown (only for SCHEDULED and MISSED visits) -->
+                        <select
+                          *ngIf="v.visitStatus === 'SCHEDULED' || v.visitStatus === 'MISSED'"
+                          (change)="updateVisitStatus(v.id, $any($event.target).value)"
+                          [value]="v.visitStatus"
+                          class="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+                        >
+                          <option value="" disabled>Change Status</option>
+                          <option value="SCHEDULED">SCHEDULED</option>
+                          <option value="COMPLETED">COMPLETED</option>
+                          <option value="CANCELLED">CANCELLED</option>
+                          <option value="MISSED">MISSED</option>
+                        </select>
+
+                        <!-- Delete Button -->
+                        <button
+                          (click)="deleteVisit(v.id)"
+                          class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-red-600 hover:bg-red-50 transition-colors ml-auto"
+                        >
+                          <svg
+                            class="w-3.5 h-3.5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            ></path>
+                          </svg>
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- REPORTS TAB -->
+              <div *ngIf="activeTab === 'reports'" class="space-y-4 animation-fade-in">
+                <div class="flex justify-between items-center mb-4">
+                  <h4 class="font-bold text-gray-800">Consultation Reports</h4>
+                  <button
+                    (click)="openAddReport()"
+                    class="text-sm font-semibold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors"
+                  >
+                    + Add Report
+                  </button>
+                </div>
+
+                <div
+                  *ngIf="reports.length === 0"
+                  class="text-center py-10 bg-gray-50 rounded-xl border border-dashed border-gray-200"
+                >
+                  <p class="text-gray-500 text-sm">No reports filed yet.</p>
+                </div>
+
+                <!-- Reports List -->
+                <div
+                  *ngFor="let r of reports"
+                  (click)="viewReportDetails(r.id)"
+                  class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4 hover:shadow-md hover:border-indigo-200 transition-all cursor-pointer"
+                >
+                  <div class="flex items-start justify-between">
+                    <div class="flex gap-4">
+                      <div class="flex-shrink-0">
+                        <div
+                          class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center"
+                        >
+                          <svg
+                            class="w-6 h-6"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            ></path>
+                          </svg>
+                        </div>
+                      </div>
+                      <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Consultation Report</h3>
+                        <p class="text-xs text-gray-400">
+                          Generated on {{ r.createdAt | date : 'medium' }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span
+                        class="text-xs font-medium text-gray-500 bg-gray-50 px-3 py-1 rounded-full"
+                      >
+                        Report #{{ r.id }}
+                      </span>
+                      <svg
+                        class="w-5 h-5 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 5l7 7-7 7"
+                        ></path>
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div class="space-y-2">
+                    <div class="bg-red-50 border border-red-100 rounded-xl p-3">
+                      <p class="text-xs font-semibold text-red-600 uppercase tracking-wider mb-1">
+                        Issue
+                      </p>
+                      <p class="text-gray-900 font-medium text-sm line-clamp-2">
+                        {{ r.identifiedIssue }}
+                      </p>
+                    </div>
+
+                    <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3">
+                      <p
+                        class="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1"
+                      >
+                        Recommendations
+                      </p>
+                      <p class="text-gray-900 text-sm line-clamp-2">{{ r.recommendations }}</p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <span class="text-xs text-gray-500">Click to view full details</span>
+                    <span *ngIf="r.followUpDate" class="text-xs text-amber-600 font-medium">
+                      Follow-up: {{ r.followUpDate | date : 'shortDate' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FEEDBACK TAB -->
+              <div *ngIf="activeTab === 'feedback'" class="space-y-4 animation-fade-in">
+                <div class="flex flex-col gap-2 mb-6">
+                  <h4 class="font-bold text-gray-800 text-lg">Client Feedback</h4>
+                  <p class="text-sm text-gray-500">
+                    Review the feedback provided by the farmer for this consultation session.
+                  </p>
+                </div>
+
+                <div class="bg-gray-50 rounded-xl p-1 border border-gray-100">
+                  <app-feedback-display [consultationId]="consultation.id"> </app-feedback-display>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Location & Info (1 span) -->
+        <div class="space-y-6">
+          <!-- Address Card -->
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <h3 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <svg
+                class="w-5 h-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+              Farm Location
+            </h3>
+            <div class="space-y-3 text-sm">
+              <div class="flex justify-between py-2 border-b border-gray-50">
+                <span class="text-gray-500">Street</span>
+                <span class="font-medium text-gray-900 text-right">{{
+                  consultation.farmAddress.street
+                }}</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-gray-50">
+                <span class="text-gray-500">City</span>
+                <span class="font-medium text-gray-900 text-right">{{
+                  consultation.farmAddress.city
+                }}</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-gray-50">
+                <span class="text-gray-500">State</span>
+                <span class="font-medium text-gray-900 text-right">{{
+                  consultation.farmAddress.state
+                }}</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-gray-50">
+                <span class="text-gray-500">Pin Code</span>
+                <span class="font-medium text-gray-900 text-right">{{
+                  consultation.farmAddress.pinCode
+                }}</span>
+              </div>
+              <div class="flex justify-between py-2">
+                <span class="text-gray-500">Country</span>
+                <span class="font-medium text-gray-900 text-right">{{
+                  consultation.farmAddress.country
+                }}</span>
+              </div>
+            </div>
+
+            <!-- Map Placeholder -->
+            <div
+              class="mt-4 h-32 bg-blue-50/50 rounded-xl border border-blue-100 flex items-center justify-center text-blue-400 text-xs"
+            >
+              Map View Not Available
+            </div>
+          </div>
+
+          <!-- Quick Actions (Only for APPROVED/COMPLETED) -->
+          <div
+            *ngIf="
+              consultation.consultationRequestStatus === 'APPROVED' ||
+              consultation.consultationRequestStatus === 'COMPLETED'
+            "
+            class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
+          >
+            <h3 class="text-base font-bold text-gray-900 mb-4">Quick Actions</h3>
+            <div class="space-y-3">
+              <button
+                (click)="openAddVisit()"
+                class="w-full py-2.5 px-4 rounded-xl border border-blue-100 text-blue-600 bg-blue-50 hover:bg-blue-100 font-semibold text-sm transition-colors flex items-center justify-center gap-2"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                Schedule Visit
+              </button>
+              <button
+                (click)="openAddReport()"
+                class="w-full py-2.5 px-4 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold text-sm transition-colors flex items-center justify-center gap-2"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 011.414.586l5.414 5.414a1 1 0 01.586 1.414V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                Write Report
+              </button>
+
+              <!-- Complete Consultation Button (Only for APPROVED status) -->
+              <button
+                *ngIf="consultation.consultationRequestStatus === 'APPROVED'"
+                (click)="completeConsultation()"
+                class="w-full py-2.5 px-4 rounded-xl border border-green-200 text-white bg-green-600 hover:bg-green-700 font-semibold text-sm transition-colors flex items-center justify-center gap-2 shadow-sm"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Complete Consultation
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Visit Modal -->
+<app-farm-visitiong-schedule
+  [isOpen]="showAddVisitModal"
+  [consultationId]="consultation?.id || 0"
+  (close)="closeAddVisit()"
+  (scheduled)="handleScheduledVisit($event)"
+>
+</app-farm-visitiong-schedule>
+
+<!-- Add Report Modal -->
+<div
+  *ngIf="showAddReportModal"
+  class="fixed inset-0 bg-black/2 backdrop-blur-sm flex items-center justify-center p-4 z-50 animation-fade-in"
+>
+  <div
+    class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-lg border border-gray-100 transform transition-all scale-100"
+  >
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h3 class="text-xl font-bold text-gray-900">Add New Report</h3>
+        <p class="text-sm text-gray-500">Document findings and recommendations</p>
+      </div>
+      <button (click)="closeAddReport()" class="text-gray-400 hover:text-gray-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Report Form -->
+    <form [formGroup]="reportForm" class="space-y-4">
+      <div>
+        <label class="text-sm font-semibold text-gray-700 block mb-1.5">Identified Issue</label>
+        <input
+          formControlName="identifiedIssue"
+          placeholder="e.g. Pest infestation on lower leaves"
+          class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+        />
+      </div>
+
+      <div>
+        <label class="text-sm font-semibold text-gray-700 block mb-1.5">Recommendations</label>
+        <input
+          formControlName="recommendations"
+          placeholder="e.g. Apply organic pesticide twice a week"
+          class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+        />
+      </div>
+
+      <div>
+        <label class="text-sm font-semibold text-gray-700 block mb-1.5">Detailed Notes</label>
+        <textarea
+          rows="4"
+          formControlName="reportText"
+          placeholder="Add detailed observations..."
+          class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+        ></textarea>
+      </div>
+
+      <div class="flex justify-end gap-3 mt-6 pt-2">
+        <button
+          type="button"
+          (click)="closeAddReport()"
+          class="px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          (click)="submitReport()"
+          class="px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all"
+        >
+          Save Report
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

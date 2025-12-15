@@ -1,0 +1,145 @@
+<!-- Admin Dashboard Layout with Purple/Indigo Theme -->
+<div
+  class="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-50 flex flex-col lg:flex-row font-sans"
+>
+  <!-- Desktop Sidebar -->
+  <aside
+    class="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 z-30 bg-white border-r border-purple-100 shadow-lg transition-all duration-300"
+  >
+    <app-admin-navbar (closeMenu)="closeMobileMenu()"></app-admin-navbar>
+  </aside>
+
+  <!-- Mobile Overlay & Sidebar -->
+  <div
+    *ngIf="isMobileMenuOpen"
+    class="fixed inset-0 z-40 bg-purple-900/20 backdrop-blur-sm lg:hidden transition-opacity duration-300"
+    (click)="closeMobileMenu()"
+  ></div>
+
+  <div
+    *ngIf="isMobileMenuOpen"
+    class="fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl transform transition-transform duration-300 ease-out lg:hidden"
+    [@fadeInOut]
+  >
+    <app-admin-navbar (closeMenu)="closeMobileMenu()"></app-admin-navbar>
+  </div>
+
+  <!-- Main Content Wrapper -->
+  <div class="lg:pl-64 flex-1 flex flex-col min-h-screen transition-all duration-300">
+    <!-- Floating Header -->
+    <header
+      class="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-purple-100 shadow-sm transition-all duration-300"
+    >
+      <div class="mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="h-16 flex items-center justify-between">
+          <!-- Mobile Menu Button & Title -->
+          <div class="flex items-center gap-4">
+            <button
+              (click)="toggleMobileMenu()"
+              class="lg:hidden p-2 -ml-2 rounded-xl text-gray-500 hover:text-purple-600 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 transform hover:scale-110"
+            >
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+
+            <div class="flex flex-col">
+              <h1
+                class="text-lg font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent leading-tight"
+              >
+                Admin Dashboard
+              </h1>
+              <p class="text-xs text-purple-600 hidden sm:block">Platform Management & Control</p>
+            </div>
+          </div>
+
+          <!-- Right Side: Notifications & User Profile -->
+          <div class="flex items-center gap-3 sm:gap-4">
+            <!-- Notification Button -->
+            <button
+              class="p-2 rounded-full text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-all duration-300 relative transform hover:scale-110"
+            >
+              <span
+                class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white animate-pulse"
+              ></span>
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                />
+              </svg>
+            </button>
+
+            <!-- Settings Button -->
+            <button
+              class="p-2 rounded-full text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-all duration-300 transform hover:scale-110 hover:rotate-90"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+            </button>
+
+            <!-- Profile Divider -->
+            <div class="h-8 w-px bg-purple-200 hidden sm:block"></div>
+
+            <!-- Profile Info -->
+            <div class="flex items-center gap-3 pl-1">
+              <div class="hidden md:flex flex-col items-end">
+                <span class="text-sm font-semibold text-gray-900"> Admin User </span>
+                <span
+                  class="text-xs text-purple-600 font-semibold bg-purple-50 px-2 py-0.5 rounded-full"
+                >
+                  Super Admin
+                </span>
+              </div>
+              <div
+                class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center text-white font-bold shadow-lg ring-2 ring-white transform hover:scale-110 transition-transform duration-300 cursor-pointer"
+              >
+                AD
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="flex-1 overflow-x-hidden">
+      <div class="w-full mx-auto animation-fade-in-up">
+        <router-outlet (activate)="scrollToTop()"></router-outlet>
+      </div>
+    </main>
+
+    <!-- Footer (Optional) -->
+    <footer class="bg-white/80 backdrop-blur-sm border-t border-purple-100 py-4 px-6">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+        <p class="text-sm text-gray-500">© 2024 E-Consultancy for Farmers. All rights reserved.</p>
+        <div class="flex items-center gap-4 text-sm text-gray-500">
+          <a href="#" class="hover:text-purple-600 transition-colors">Privacy Policy</a>
+          <span>•</span>
+          <a href="#" class="hover:text-purple-600 transition-colors">Terms of Service</a>
+          <span>•</span>
+          <a href="#" class="hover:text-purple-600 transition-colors">Support</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>

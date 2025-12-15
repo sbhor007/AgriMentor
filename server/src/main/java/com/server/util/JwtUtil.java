@@ -20,13 +20,13 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtUtil {
 	@Value("${jwt.secret-key}")
 	private String JWTSecretKey;
-	
+
 	private SecretKey getSecretKey() {
 		return Keys.hmacShaKeyFor(JWTSecretKey.getBytes(StandardCharsets.UTF_8));
 	}
-	
+
 	public String generatAccessToken(User user) {
-		log.info("Generating JWT token for user: {}", user.getEmail());		
+		log.info("Generating JWT token for user: {}", user.getEmail());
 		log.info("secret key: {}", JWTSecretKey);
 		String role = user.getRole() != null ? user.getRole().name() : "UNKNOWN";
 		return Jwts.builder()
@@ -38,25 +38,24 @@ public class JwtUtil {
 				.signWith(getSecretKey())
 				.compact();
 	}
-	//extract email and roll from token
+
+	// extract email and roll from token
 	public String getUsernameFromToken(String token) {
 		return getAllClaimsFromToken(token).getSubject();
 	}
 
 	private Claims getAllClaimsFromToken(String token) {
 		// Parse JWT using the secret key and extract payload (Claims)
-        return Jwts.parser()
-                .verifyWith(getSecretKey()) 
-                .build()
-                .parseSignedClaims(token)   
-                .getPayload();        
+		return Jwts.parser()
+				.verifyWith(getSecretKey())
+				.build()
+				.parseSignedClaims(token)
+				.getPayload();
 	}
-	
-    //Extract Role from JWT token
-    public String getRoleFromToken(String token) {
-        return getAllClaimsFromToken(token).get("role", String.class);
-    }
 
-	
-	
+	// Extract Role from JWT token
+	public String getRoleFromToken(String token) {
+		return getAllClaimsFromToken(token).get("role", String.class);
+	}
+
 }

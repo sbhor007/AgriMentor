@@ -1,0 +1,88 @@
+<div class="">
+
+  <!-- Hero Section -->
+  <section
+    class="relative h-screen flex flex-col items-center justify-center text-white px-6 md:px-20 py-12 md:py-20 overflow-hidden"
+  >
+    <!-- Background Image with Overlay -->
+    <div
+      class="absolute inset-0 bg-cover bg-center"
+      style="background-image: url('https://images.pexels.com/photos/106162/wheat-wheat-spike-wheat-field-cornfield-106162.jpeg');"
+    ></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/60 to-black/80"></div>
+
+    <!-- Content -->
+    <div class="relative z-10 text-center max-w-4xl mx-auto space-y-8" data-aos="fade-up">
+      <h2 class="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight">
+        Connecting Farmers with Agricultural  Experts Digitally
+      </h2>
+      <p class="text-lg md:text-xl text-gray-200 leading-relaxed">
+        Get expert guidance on crops, soil preparation, and fertilizer use. Access real-time
+        consultations, weather updates, and personalized agricultural advice from certified
+        experts.
+      </p>
+      <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center pt-4">
+        <button
+          class="bg-white text-green-700 font-semibold px-8 py-3 rounded-full shadow-lg hover:bg-green-100 transition transform hover:-translate-y-1"
+          routerLink="/register/farmer"
+        >
+          Register as Farmer
+        </button>
+        <button
+          class="border-2 border-white text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:bg-white hover:text-green-700 transition transform hover:-translate-y-1"
+          routerLink="/register/consultant"
+        >
+          Register as Consultant
+        </button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Platform Benefits Section -->
+  <section class="px-6 md:px-20 py-16 bg-gray-50 text-center">
+    <h3 class="text-3xl md:text-4xl font-bold mb-4 text-gray-800" data-aos="fade-up">
+      Platform Benefits
+    </h3>
+    <p class="text-lg text-gray-600 max-w-3xl mx-auto mb-12" data-aos="fade-up" data-aos-delay="100">
+      Our platform connects you with experienced agricultural consultants to help improve your
+      farming practices and crop yields through personalized and timely advice.
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      @for (benefit of benefits; track benefit.title) {
+        <div
+          class="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition transform hover:-translate-y-2 flex flex-col items-center space-y-5"
+          data-aos="zoom-in"
+        >
+          <div class="p-4 rounded-full" [ngClass]="benefit.iconBg">
+            <benefit.icon class="h-9 w-9" [ngClass]="benefit.iconColor" />
+          </div>
+          <h4 class="text-xl font-bold text-gray-900">{{ benefit.title }}</h4>
+          <p class="text-gray-700 text-base text-center leading-relaxed">{{ benefit.description }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section
+    class="bg-gradient-to-br from-green-600 to-blue-700 text-white text-center py-16 flex flex-col items-center space-y-6 px-6 md:px-20"
+    data-aos="fade-up"
+  >
+    <h4 class="text-3xl font-bold">Ready to Elevate Your Farming?</h4>
+    <p class="text-lg text-green-100 max-w-2xl leading-relaxed">
+      Join thousands of farmers who are already benefiting from expert agricultural consultancy.
+      Sign up today and transform your agricultural practices.
+    </p>
+    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
+      <button class="bg-white text-green-700 font-semibold px-8 py-3 rounded-full shadow-lg hover:bg-green-100 transition transform hover:-translate-y-1">
+        Register Now
+      </button>
+      <button class="border-2 border-white text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:bg-white hover:text-green-700 transition transform hover:-translate-y-1">
+        Sign In
+      </button>
+    </div>
+  </section>
+
+</div>

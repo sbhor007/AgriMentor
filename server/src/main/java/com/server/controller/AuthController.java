@@ -8,12 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.server.dto.CunsultantRegisterRequest;
 import com.server.dto.FarmerRegistrationRequest;
@@ -69,6 +64,16 @@ public class AuthController{
 	        }
 	    }
 
+     @GetMapping("/isUserAlreadyExist")
+     public ResponseEntity<ApiResponse<?>> isUserAlreadyExist(@RequestParam String username, @RequestParam Role role){
+         log.info("inside isUserAlreadyExist");
+         try {
+             return ResponseEntity.ok().body(new ApiResponse<>(HttpStatus.OK,"",this.authService.isUserAlreadyExist(username,role)));
+         }catch (Exception e){
+             return null;
+         }
+     }
+
 	@PostMapping("/register/farmer")
 	public ResponseEntity<?> registerFarmer(@RequestBody FarmerRegistrationRequest request) {
 	    log.info("Registration Request Received: {}", request);
@@ -83,9 +88,7 @@ public class AuthController{
 	                )
 	    );
 	}
-	
-	
-	
+
 	@PostMapping(value = "/register/consultant", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> registerConsultant(@ModelAttribute CunsultantRegisterRequest request) {
 		log.info("Registering Consultant: {}", request);
@@ -115,7 +118,7 @@ public class AuthController{
         
         try {
         	 otpService.sendOtp(email);
-        	 otpService.generateOtp(6);
+        	 OtpService.generateOtp(6);
              return ResponseEntity.ok().body(new ApiResponse<>(HttpStatus.OK,"OTP send succesfully"));
 		} catch (Exception e) {
 			log.error("Login failed for user: {}", e.getMessage());

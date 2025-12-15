@@ -1,4 +1,5 @@
 package com.server.entity;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +15,10 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 
 public class Consultation {
-	@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -38,7 +39,7 @@ public class Consultation {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "crop_id")
-    @JsonBackReference(value = "consultation-crop")
+    @JsonManagedReference(value = "consultation-crop")
     private Crop crop;
 
     @OneToMany(mappedBy = "consultation", cascade = CascadeType.ALL)
@@ -49,13 +50,32 @@ public class Consultation {
     @JsonManagedReference
     private List<ConsultationReport> consultationReports = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "farm_address_id")
     @JsonManagedReference
     private Address farmAddress;
 
+    @OneToOne(mappedBy = "consultation", cascade = CascadeType.ALL)
+    @JsonManagedReference(value = "consultation-feedback")
+    private Feedback feedback;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime closedAt;
+
+    @Override
+    public String toString() {
+        return "Consultation{" +
+                "id=" + id +
+                ", topic='" + topic + '\'' +
+                ", description='" + description + '\'' +
+                ", consultationRequestStatus=" + consultationRequestStatus +
+                ", farmerId=" + (farmer != null ? farmer.getId() : null) +
+                ", consultantId=" + (consultant != null ? consultant.getId() : null) +
+                ", cropId=" + (crop != null ? crop.getId() : null) +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", closedAt=" + closedAt +
+                '}';
+    }
 }

@@ -48,7 +48,7 @@ public class EmailService {
     }
 
     @Async("emailExecutor")
-    public CompletableFuture<Boolean> sendEmail( String body) {
+    public CompletableFuture<Boolean> sendEmail(String body) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo("sbhor372@gmail.com");

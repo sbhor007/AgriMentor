@@ -1,0 +1,24 @@
+/* Custom Scrollbar */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background-color: #f7fafc;
+    border-radius: 9999px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #2563eb;
+    border-radius: 9999px;
+    transition: background-color 0.2s ease-out;
+  }
+
+  .scrollbar-thumb-green-300::-webkit-scrollbar-thumb {
+    background-color: #2563eb;
+  }
+
+  .scrollbar-track-gray-100::-webkit-scrollbar-track {
+    background-color: #f7fafc;
+  }

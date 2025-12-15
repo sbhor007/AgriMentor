@@ -21,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
 	@Autowired
     private UserService userService;
+
+
 	
 	@GetMapping("/test")
 	public void Test(Authentication authentication) {

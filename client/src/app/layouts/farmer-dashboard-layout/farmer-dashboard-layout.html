@@ -1,0 +1,108 @@
+<div class="min-h-screen bg-gray-50 flex flex-col lg:flex-row font-sans">
+  <!-- Desktop Sidebar -->
+  <aside
+    class="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 z-30 bg-white border-r border-gray-100 shadow-sm transition-all duration-300"
+  >
+    <app-farmer-navbar class="h-full" (closeMenu)="closeMobileMenu()"></app-farmer-navbar>
+  </aside>
+
+  <!-- Mobile Overlay & Sidebar -->
+  <div
+    *ngIf="isMobileMenuOpen"
+    class="fixed inset-0 z-50 bg-gray-900/20 backdrop-blur-sm lg:hidden transition-opacity duration-300"
+    (click)="closeMobileMenu()"
+  ></div>
+
+  <div
+    *ngIf="isMobileMenuOpen"
+    class="fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl transform transition-transform duration-300 ease-out lg:hidden"
+    [@fadeInOut]
+  >
+    <app-farmer-navbar (closeMenu)="closeMobileMenu()"></app-farmer-navbar>
+  </div>
+
+  <!-- Main Content Wrapper -->
+  <div class="lg:pl-64 flex-1 flex flex-col min-h-screen transition-all duration-300">
+    <!-- Floating Header -->
+    <header
+      class="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="h-16 flex items-center justify-between">
+          <!-- Mobile Menu Button & Title -->
+          <div class="flex items-center gap-4">
+            <button
+              (click)="toggleMobileMenu()"
+              class="lg:hidden p-2 -ml-2 rounded-lg text-gray-500 hover:text-green-600 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-500/20 transition-colors"
+            >
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+
+            <!-- <div class="flex flex-col">
+              <h1 class="text-lg font-bold text-gray-900 leading-tight">Dashboard</h1>
+              <p class="text-xs text-gray-500 hidden sm:block">Manage your farm activities</p>
+            </div> -->
+          </div>
+
+          <!-- Right Side: User Profile & Actions -->
+          <div class="flex items-center gap-3 sm:gap-4">
+            <!-- Notification Placeholder -->
+            <button
+              class="p-2 rounded-full text-gray-400 hover:text-green-600 hover:bg-green-50 transition-colors relative"
+            >
+              <span
+                class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white"
+              ></span>
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                />
+              </svg>
+            </button>
+
+            <!-- Profile Divider -->
+            <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
+
+            <!-- Profile Info -->
+            <div class="flex items-center gap-3 pl-1">
+              <div class="hidden md:flex flex-col items-end">
+                <span class="text-sm font-semibold text-gray-900">
+                  {{ farmerProfile?.firstName | titlecase }}
+                  {{ farmerProfile?.lastName | titlecase }}
+                </span>
+                <span
+                  class="text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full"
+                >
+                  Farmer
+                </span>
+              </div>
+              <div
+                class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold shadow-sm ring-2 ring-white"
+              >
+                {{ farmerProfile?.firstName?.charAt(0) | titlecase
+                }}{{ farmerProfile?.lastName?.charAt(0) | titlecase }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+      <div class="w-full   animation-fade-in-up">
+        <router-outlet (activate)="scrollToTop()"></router-outlet>
+      </div>
+    </main>
+  </div>
+</div>

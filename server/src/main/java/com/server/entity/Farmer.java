@@ -1,14 +1,11 @@
 package com.server.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.server.enumeration.SoilType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,10 +23,10 @@ import org.springframework.data.annotation.CreatedDate;
 @Getter
 @Setter
 @Builder
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Farmer extends User{
-	
-	@Value("50.0")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+public class Farmer extends User {
+
+    @Value("50.0")
     private Double farmAreaHectares;
     @OneToMany(mappedBy = "farmer", cascade = CascadeType.ALL, orphanRemoval = false)
     @JsonBackReference(value = "consultation-farmer")
@@ -38,7 +35,19 @@ public class Farmer extends User{
     private SoilType soilType;
     @Value("Unknown")
     private String preferredLanguage;
-	@CreatedDate
+    @CreatedDate
     private LocalDateTime createdAt;
-	
+
+    @Override
+    public String toString() {
+        return "Farmer{" +
+                "id=" + getId() +
+                ", email='" + getEmail() + '\'' +
+                ", farmAreaHectares=" + farmAreaHectares +
+                ", soilType=" + soilType +
+                ", preferredLanguage='" + preferredLanguage + '\'' +
+                ", createdAt=" + createdAt +
+                '}';
+    }
+
 }

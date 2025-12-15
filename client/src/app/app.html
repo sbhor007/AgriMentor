@@ -1,10 +1,11 @@
-<!-- <div> -->
-    <ngx-sonner-toaster 
+@if (isBrowser) {
+<ngx-sonner-toaster
   position="top-right"
   [richColors]="true"
   [closeButton]="true"
   [duration]="4000"
   ngSkipHydration
 />
-<!-- </div> -->
+}
+
 <router-outlet />

@@ -6,13 +6,11 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.springframework.beans.factory.annotation.Value;
 import com.server.enumeration.VerificationStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,28 +21,30 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 
 public class Consultant extends User {
-	@OneToOne(mappedBy = "consultant", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "consultant", cascade = CascadeType.ALL)
     @JsonBackReference
     private VerificationDocument verificationDocument;
+    @Column(columnDefinition = "TEXT")
+    private String bio;
 
-	private String expertiseArea;
-	private int experienceYears;
-	private String qualifications;
+    private String expertiseArea;
+    private int experienceYears;
+    private String qualifications;
     private String specialization;
-	@Enumerated(EnumType.STRING)
-	private VerificationStatus verificationStatus;
+    @Enumerated(EnumType.STRING)
+    private VerificationStatus verificationStatus;
 
     @OneToMany(mappedBy = "consultant", cascade = CascadeType.ALL)
     @JsonBackReference(value = "consultation-consultant")
     private List<Consultation> consultations = new ArrayList<>();
 
-
     private LocalDateTime verifiedAt;
-	@Value("false")
-	private Boolean isActive;
+    @Value("false")
+    private Boolean isActive;
 
+    
 
 }

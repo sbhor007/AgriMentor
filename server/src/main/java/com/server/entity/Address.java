@@ -1,6 +1,7 @@
 package com.server.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,7 +13,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Address {
 
     @Id
@@ -42,12 +43,14 @@ public class Address {
     @ToString.Exclude
     private User user;
 
-    @OneToOne(mappedBy = "farmAddress")
-    @JsonBackReference
-    private Consultation consultation;
+    @OneToMany(mappedBy = "farmAddress", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    @ToString.Exclude
+    private List<Consultation> consultations;
 
     @OneToMany(mappedBy = "farmAddress", cascade = CascadeType.ALL)
     @JsonBackReference
+    @ToString.Exclude
     private List<Farmvisit> farmVisits = new ArrayList<>();
 
 }
