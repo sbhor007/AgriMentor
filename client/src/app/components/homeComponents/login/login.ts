@@ -42,7 +42,7 @@ export class Login {
       if (role == 'FARMER') {
         this.image = 'images/farmer.svg';
       } else if (role == 'CONSULTANT') {
-        this.image = 'images/admin.svg';
+        this.image = 'images/consultant.jpg';
       } else {
         this.image = 'images/farmer.svg';
       }

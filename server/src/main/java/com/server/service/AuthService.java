@@ -172,7 +172,9 @@ public class AuthService {
 			VerificationDocument document = new VerificationDocument();
 			document.setDocumentType(file.getContentType());
 			document.setDocumentUrl(uploadPath.toString());
-			document.setFileContent(file.getBytes());
+			byte[] bytes = Files.readAllBytes(uploadPath);
+			document.setFileContent(bytes);
+			
 			document.setConsultant(consultant);
 
 			verificationDocumentRepository.save(document);
