@@ -159,7 +159,7 @@ public class AuthService {
 
 			// Create directories if they don't exist
 			Files.createDirectories(uploadDir);
-
+            
 			String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
 			Path uploadPath = uploadDir.resolve(fileName);
 
@@ -174,7 +174,7 @@ public class AuthService {
 			document.setDocumentUrl(uploadPath.toString());
 			byte[] bytes = Files.readAllBytes(uploadPath);
 			document.setFileContent(bytes);
-			
+//			document.setFileContent(file.getBytes());
 			document.setConsultant(consultant);
 
 			verificationDocumentRepository.save(document);
