@@ -78,6 +78,10 @@ export class ChatService {
     return this.http.get<{ count: number }>(`${this.apiUrl}/unread-count`);
   }
 
+  syncChatRooms(): Observable<{ created: number }> {
+    return this.http.post<{ created: number }>(`${this.apiUrl}/sync`, {});
+  }
+
   // WebSocket Methods
   sendWebSocketMessage(roomId: number, content: string, email: string) {
     if (this.stompClient && this.stompClient.connected) {

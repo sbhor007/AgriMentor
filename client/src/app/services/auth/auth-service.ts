@@ -48,7 +48,7 @@ export class AuthService {
     this.api.registerConsultant(consultantData).subscribe({
       next: (res) => {
         console.log('AUTH:RegisterConsultant::DATA: ' + res);
-        toast.success('Registration successful');
+        toast.info('Registration Request send successfully, wait for approval');
         this.router.navigate(['/login']);
       },
       error: (err) => {

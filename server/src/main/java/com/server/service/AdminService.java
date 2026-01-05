@@ -269,8 +269,68 @@ public class AdminService {
         user.setIsActive(!user.getIsActive());
         userRepository.save(user);
 
+        // Send email notification to user about status change
+        String subject;
+        String body;
+
+        if (user.getIsActive()) {
+            subject = "Your Account Has Been Activated - E-Consultancy for Farmers";
+            body = buildAccountActivatedEmailTemplate(user);
+        } else {
+            subject = "Your Account Has Been Deactivated - E-Consultancy for Farmers";
+            body = buildAccountDeactivatedEmailTemplate(user);
+        }
+
+        emailService.sendEmail(user.getEmail(), subject, body);
+
         log.info("User status toggled successfully for: {}. New status: {}", username, user.getIsActive());
         return true;
+    }
+
+    /**
+     * Build email template for account activation
+     */
+    private String buildAccountActivatedEmailTemplate(User user) {
+        return "Dear " + user.getFirstName() + " " + user.getLastName() + ",\n\n" +
+                "Great news! Your account on E-Consultancy for Farmers has been activated.\n\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "ACCOUNT DETAILS\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "Email: " + user.getEmail() + "\n" +
+                "Role: " + user.getRole().toString() + "\n" +
+                "Status: ACTIVE ✓\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+                "You now have full access to all platform features. Log in to continue using our services.\n\n" +
+                "If you have any questions or need assistance, please don't hesitate to contact our support team.\n\n" +
+                "Best regards,\n" +
+                "The E-Consultancy for Farmers Admin Team\n\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "This is an automated message. Please do not reply directly to this email.";
+    }
+
+    /**
+     * Build email template for account deactivation
+     */
+    private String buildAccountDeactivatedEmailTemplate(User user) {
+        return "Dear " + user.getFirstName() + " " + user.getLastName() + ",\n\n" +
+                "We regret to inform you that your account on E-Consultancy for Farmers has been deactivated.\n\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "ACCOUNT DETAILS\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "Email: " + user.getEmail() + "\n" +
+                "Role: " + user.getRole().toString() + "\n" +
+                "Status: DEACTIVATED ✗\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+                "What this means:\n" +
+                "• You will not be able to log in to your account\n" +
+                "• Your existing data remains safe and secure\n" +
+                "• Active consultations may be affected\n\n" +
+                "If you believe this was done in error or have any questions, please contact our support team for assistance.\n\n"
+                +
+                "Best regards,\n" +
+                "The E-Consultancy for Farmers Admin Team\n\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "This is an automated message. Please do not reply directly to this email.";
     }
 
     /**

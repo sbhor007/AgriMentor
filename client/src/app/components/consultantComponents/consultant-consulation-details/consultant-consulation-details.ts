@@ -16,6 +16,7 @@ import { FarmVisit } from '../../../services/farmVisit/farm-visit';
 
 import { FarmVisitiongSchedule } from '../farm-visitiong-schedule/farm-visitiong-schedule';
 import { FeedbackDisplayComponent } from '../feedback-display/feedback-display';
+import { toast } from 'ngx-sonner';
 
 // Custom validator to ensure date is in the future
 function futureDateValidator(control: AbstractControl): ValidationErrors | null {
@@ -306,6 +307,7 @@ export class ConsultantConsulationDetails implements OnInit, OnDestroy {
         // Refresh consultation data to get updated reports
         this.consultationService.getListConsultationRequestsData();
 
+        toast.success('Report created successfully!');
         // Close modal and reset form
         this.showAddReportModal = false;
         this.reportForm.reset();
@@ -313,7 +315,7 @@ export class ConsultantConsulationDetails implements OnInit, OnDestroy {
       error: (err: any) => {
         console.error('❌ Error creating report:', err);
         // You can add user-friendly error notification here
-        alert('Failed to create report. Please try again.');
+        toast.error('Failed to create report. Please try again.');
       },
     });
   }
@@ -340,7 +342,7 @@ export class ConsultantConsulationDetails implements OnInit, OnDestroy {
         (visit) => visit.visitStatus === 'SCHEDULED' || visit.visitStatus === 'MISSED'
       );
 
-      alert(
+      toast.error(
         `Cannot complete consultation. You have ${incompletVisits.length} incomplete farm visit(s).\n\n` +
           `Please complete or cancel all scheduled/missed farm visits before marking the consultation as complete.\n\n` +
           `Incomplete visits:\n` +
@@ -365,7 +367,7 @@ export class ConsultantConsulationDetails implements OnInit, OnDestroy {
     this.consultationService.completeConsultation(this.consultation.id).subscribe({
       next: (res: any) => {
         console.log('✅ Consultation completed successfully:', res);
-        alert('Consultation has been marked as completed successfully!');
+        toast.success('Consultation has been marked as completed successfully!');
 
         // Refresh consultation data
         this.consultationService.getListConsultationRequestsData();
@@ -373,7 +375,7 @@ export class ConsultantConsulationDetails implements OnInit, OnDestroy {
       },
       error: (err: any) => {
         console.error('❌ Error completing consultation:', err);
-        alert('Failed to complete consultation. Please try again.');
+        toast.error('Failed to complete consultation. Please try again.');
       },
     });
   }

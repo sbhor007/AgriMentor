@@ -30,7 +30,7 @@
         </div>
       </div>
       <h3 class="text-gray-500 text-sm font-medium mb-1">Total Users</h3>
-      <p class="text-3xl font-bold text-gray-900">{{ userStats?.totalUsers || 0 | number }}</p>
+      <p class="text-3xl font-bold text-gray-900">{{ (userStats?.totalUsers ?? 0) - 1 | number }}</p>
     </div>
 
     <div
@@ -73,7 +73,7 @@
       </div>
       <h3 class="text-gray-500 text-sm font-medium mb-1">Consultants</h3>
       <p class="text-3xl font-bold text-gray-900">
-        {{ userStats?.totalConsultants || 0 | number }}
+        {{ userStats?.totalConsultants || 0  | number }}
       </p>
     </div>
 
@@ -95,7 +95,7 @@
         </div>
       </div>
       <h3 class="text-gray-500 text-sm font-medium mb-1">Active Users</h3>
-      <p class="text-3xl font-bold text-gray-900">{{ userStats?.activeUsers || 0 | number }}</p>
+      <p class="text-3xl font-bold text-gray-900">{{ (userStats?.activeUsers ?? 0) - 1 | number }}</p>
     </div>
   </div>
 
@@ -169,7 +169,7 @@
               No users found matching your search.
             </td>
           </tr>
-          } @for(user of filteredUsers; track user.id) {
+          } @for(user of filteredUsers; track user.id) { @if (user.role != 'ADMIN') {
           <tr class="hover:bg-purple-50/50 transition-colors">
             <td class="px-6 py-4">
               <div class="flex items-center gap-3">
@@ -201,15 +201,17 @@
             <td class="px-6 py-4">
               <span
                 class="px-3 py-1 rounded-full text-xs font-semibold border"
-                [ngClass]="getStatusClass(user.isActive)"
+                [ngClass]="getStatusClass(user.isActive || user.isVerified)"
               >
-                {{ getStatusText(user.isActive) }}
+                {{ getStatusText(user.isActive || user.isVerified) }}
               </span>
             </td>
             <td class="px-6 py-4 text-gray-600">
               {{ user.address?.city || 'N/A' }}, {{ user.address?.state || 'N/A' }}
             </td>
-            <td class="px-6 py-4 text-gray-600">{{ user.createdAt | date : 'mediumDate' }}</td>
+            <td class="px-6 py-4 text-gray-600">
+              {{ user.createdAt || user.updatedAt | date : 'mediumDate' }}
+            </td>
             <!-- <td class="px-6 py-4">
               <div class="flex gap-2">
                 <button class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors">
@@ -241,7 +243,7 @@
               </div>
             </td> -->
           </tr>
-          }
+          } }
         </tbody>
       </table>
     </div>

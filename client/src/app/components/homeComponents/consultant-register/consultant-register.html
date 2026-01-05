@@ -1,14 +1,14 @@
 <div
-  class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans"
+  class="bg-gradient-to-br from-blue-50 via-white to-blue-100 flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans"
 >
   <div
-    class="w-full max-w-7xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[700px]"
+    class="w-full max-w-7xl bg-red-500 rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row h-[50%]"
     data-aos="fade-up"
     data-aos-duration="800"
   >
     <!-- Left Side: Branding & Image -->
     <div
-      class="hidden lg:flex lg:w-4/12 bg-blue-900 relative flex-col justify-between p-12 text-white overflow-hidden"
+      class="hidden lg:flex lg:w-4/12 bg-blue-900 relative flex-col items-center justify-center p-12 text-white overflow-hidden"
     >
       <!-- Decorative Elements -->
       <div
@@ -19,8 +19,8 @@
       ></div>
 
       <!-- Content -->
-      <div class="relative z-10">
-        <div class="flex items-center gap-3 mb-8">
+      <div class="relative z-10 text-center mb-8">
+        <div class="flex items-center justify-center gap-3 mb-6">
           <div class="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -40,20 +40,21 @@
           <span class="text-xl font-bold tracking-wide">AgriConnect</span>
         </div>
 
-        <h1 class="text-4xl font-bold leading-tight mb-6">
+        <h1 class="text-4xl font-bold leading-tight mb-4">
           Share Your <br />
           <span class="text-blue-300">Agricultural Expertise</span>
         </h1>
-        <p class="text-blue-100 text-lg leading-relaxed opacity-90">
+        <p class="text-blue-100 text-lg leading-relaxed opacity-90 max-w-sm mx-auto">
           Join our network of certified consultants and help farmers optimize their yield.
         </p>
       </div>
 
-      <div class="relative z-10 mt-auto flex justify-center">
+      <!-- Image -->
+      <div class="relative z-10 w-full flex justify-center">
         <img
           [src]="image"
           alt="Consultant Registration"
-          class="w-full max-w-xs drop-shadow-2xl rounded-xl transform hover:scale-105 transition-transform duration-500"
+          class="w-full max-w-xs md:max-w-sm drop-shadow-2xl rounded-xl transform hover:scale-105 transition-transform duration-500"
         />
       </div>
     </div>

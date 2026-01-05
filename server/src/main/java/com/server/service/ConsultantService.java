@@ -62,9 +62,7 @@ public class ConsultantService {
                         response.setVerificationStatus(consultant.getVerificationStatus());
                         response.setIsActive(consultant.getIsActive());
 
-
-
-                        if(consultant.getAddress() != null){
+                        if (consultant.getAddress() != null) {
                             Address address = consultant.getAddress();
                             AddressDTO addressDTO = new AddressDTO();
                             addressDTO.setStreet(address.getStreet());
@@ -76,7 +74,7 @@ public class ConsultantService {
                             response.setBio(consultant.getBio());
                         }
 
-                        if(consultant.getVerificationDocument() != null){
+                        if (consultant.getVerificationDocument() != null) {
                             VerificationDocument doc = consultant.getVerificationDocument();
                             VerificationDocumentDTO docDTO = new VerificationDocumentDTO();
                             docDTO.setId(doc.getId());
@@ -223,6 +221,8 @@ public class ConsultantService {
                 consultant.setIsVerified(false);
                 consultant.setIsActive(false);
             }
+            
+            log.info("Consultant : {}", consultant);
             consultantRepository.save(consultant);
             log.info("Consultant with email {} updated to verification status: {}", email, status);
         } else {
@@ -236,19 +236,51 @@ public class ConsultantService {
     public boolean verifyConsultant(String email) {
         log.info("Inside ConsultantService.verifyConsultant with email: {}", email);
         try {
+            Optional<Consultant> consultantOpt = this.getConsultantByUsername(email);
+            if (consultantOpt.isEmpty()) {
+                log.warn("Consultant with email {} not found", email);
+                return false;
+            }
+
+            Consultant consultant = consultantOpt.get();
             this.updateVerificationStatus(email, VerificationStatus.VERIFIED);
             log.info("Consultant with email {} verified successfully", email);
-            this.emailService.sendEmail(
-                    "Dear Consultant,\n\n" +
-                            "We are pleased to inform you that your account has been successfully verified. " +
-                            "You can now access all the features and services available to verified consultants on our platform.\n\n"
-                            +
-                            "Thank you for being a valued member of our community.\n\n" +
-                            "Best regards,\n" +
-                            "The Team");
+
+            // Send verification success email
+            String subject = "Congratulations! Your Consultant Account Has Been Verified - E-Consultancy for Farmers";
+            String body = buildVerificationApprovedEmailTemplate(consultant);
+            this.emailService.sendEmail(email, subject, body);
+
             return true;
         } catch (Exception e) {
             log.error("Error verifying consultant with email {}: {}", email, e.getMessage());
+            return false;
+        }
+    }
+
+    // reject consultant verification
+    @Transactional
+    public boolean rejectConsultantVerification(String email, String reason) {
+        log.info("Inside ConsultantService.rejectConsultantVerification with email: {}", email);
+        try {
+            Optional<Consultant> consultantOpt = this.getConsultantByUsername(email);
+            if (consultantOpt.isEmpty()) {
+                log.warn("Consultant with email {} not found", email);
+                return false;
+            }
+
+            Consultant consultant = consultantOpt.get();
+            this.updateVerificationStatus(email, VerificationStatus.REJECTED);
+            log.info("Consultant with email {} verification rejected", email);
+
+            // Send verification rejection email
+            String subject = "Consultant Verification Status Update - E-Consultancy for Farmers";
+            String body = buildVerificationRejectedEmailTemplate(consultant, reason);
+            this.emailService.sendEmail(email, subject, body);
+
+            return true;
+        } catch (Exception e) {
+            log.error("Error rejecting consultant with email {}: {}", email, e.getMessage());
             return false;
         }
     }
@@ -338,6 +370,16 @@ public class ConsultantService {
                 Consultation consultation = consultationOpt.get();
                 consultation.setConsultationRequestStatus(ConsultationRequestStatus.APPROVED);
                 log.info("Consultation request with id: {} accepted by consultant: {}", consultationId, username);
+
+                // Send email notification to farmer
+                if (consultation.getFarmer() != null) {
+                    String farmerEmail = consultation.getFarmer().getEmail();
+                    String subject = "Great News! Your Consultation Request Has Been Accepted - E-Consultancy for Farmers";
+                    String body = buildConsultationAcceptedEmailTemplate(consultation, consultant);
+                    emailService.sendEmail(farmerEmail, subject, body);
+                    log.info("Acceptance email sent to farmer: {}", farmerEmail);
+                }
+
                 return true;
             } else {
                 log.warn("Consultation request with id: {} not found for consultant: {}", consultationId, username);
@@ -352,7 +394,7 @@ public class ConsultantService {
 
     @Transactional
     public boolean rejectConsultationRequest(String username, Long consultationId) {
-        log.info("Consultant {} is attempting to accept consultation request with id: {}", username, consultationId);
+        log.info("Consultant {} is attempting to reject consultation request with id: {}", username, consultationId);
         try {
             Consultant consultant = consultantRepository.findByEmail(username)
                     .orElseThrow(() -> new RuntimeException("Consultant not found with username: " + username));
@@ -364,14 +406,24 @@ public class ConsultantService {
             if (consultationOpt.isPresent()) {
                 Consultation consultation = consultationOpt.get();
                 consultation.setConsultationRequestStatus(ConsultationRequestStatus.REJECTED);
-                log.info("Consultation request with id: {} accepted by consultant: {}", consultationId, username);
+                log.info("Consultation request with id: {} rejected by consultant: {}", consultationId, username);
+
+                // Send email notification to farmer
+                if (consultation.getFarmer() != null) {
+                    String farmerEmail = consultation.getFarmer().getEmail();
+                    String subject = "Consultation Request Update - E-Consultancy for Farmers";
+                    String body = buildConsultationRejectedEmailTemplate(consultation, consultant);
+                    emailService.sendEmail(farmerEmail, subject, body);
+                    log.info("Rejection email sent to farmer: {}", farmerEmail);
+                }
+
                 return true;
             } else {
                 log.warn("Consultation request with id: {} not found for consultant: {}", consultationId, username);
                 return false;
             }
         } catch (Exception e) {
-            log.error("Error accepting consultation request with id: {} for consultant: {}: {}", consultationId,
+            log.error("Error rejecting consultation request with id: {} for consultant: {}: {}", consultationId,
                     username, e.getMessage());
             return false;
         }
@@ -398,6 +450,16 @@ public class ConsultantService {
                     consultation.getFarmVisits().add(scheduled);
                     log.info("Linked farm visit to consultation successfully for consultation id: {}",
                             consultation.getId());
+
+                    // Send email notification to farmer about scheduled visit
+                    if (consultation.getFarmer() != null) {
+                        String farmerEmail = consultation.getFarmer().getEmail();
+                        String subject = "Farm Visit Scheduled - E-Consultancy for Farmers";
+                        String body = buildFarmVisitScheduledEmailTemplate(consultation, consultant, scheduled);
+                        emailService.sendEmail(farmerEmail, subject, body);
+                        log.info("Farm visit scheduled email sent to farmer: {}", farmerEmail);
+                    }
+
                     return true;
                 } else {
                     log.warn("Failed to schedule farm visit for consultation request with id: {} by consultant: {}",
@@ -600,6 +662,166 @@ public class ConsultantService {
             log.error("Error fetching profile picture for consultant ID: {}", consultantId, e);
             return null;
         }
+    }
+
+    // ==================== EMAIL TEMPLATE BUILDERS ====================
+
+    /**
+     * Build email template for consultant verification approval
+     */
+    private String buildVerificationApprovedEmailTemplate(Consultant consultant) {
+        return "Dear " + consultant.getFirstName() + " " + consultant.getLastName() + ",\n\n" +
+                "🎉 Congratulations! Your consultant account has been successfully verified!\n\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "VERIFICATION DETAILS\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "Email: " + consultant.getEmail() + "\n" +
+                "Expertise: " + consultant.getExpertiseArea() + "\n" +
+                "Status: VERIFIED ✓\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+                "What you can do now:\n" +
+                "• Accept consultation requests from farmers\n" +
+                "• Schedule farm visits\n" +
+                "• Provide expert advice and consultation reports\n" +
+                "• Build your reputation on the platform\n\n" +
+                "Log in to your dashboard to start helping farmers today!\n\n" +
+                "Best regards,\n" +
+                "The E-Consultancy for Farmers Admin Team\n\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "This is an automated message. Please do not reply directly to this email.";
+    }
+
+    /**
+     * Build email template for consultant verification rejection
+     */
+    private String buildVerificationRejectedEmailTemplate(Consultant consultant, String reason) {
+        String reasonText = (reason != null && !reason.isEmpty()) ? reason
+                : "Your submitted documents did not meet our verification requirements.";
+
+        return "Dear " + consultant.getFirstName() + " " + consultant.getLastName() + ",\n\n" +
+                "We regret to inform you that your consultant verification request has been declined.\n\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "VERIFICATION STATUS\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "Email: " + consultant.getEmail() + "\n" +
+                "Status: REJECTED ✗\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+                "Reason for Rejection:\n" +
+                reasonText + "\n\n" +
+                "What you can do:\n" +
+                "• Review your submitted documents\n" +
+                "• Ensure all credentials are valid and up-to-date\n" +
+                "• Re-register with correct documentation\n" +
+                "• Contact our support team for clarification\n\n" +
+                "We encourage you to address the issues and apply again.\n\n" +
+                "Best regards,\n" +
+                "The E-Consultancy for Farmers Admin Team\n\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "This is an automated message. Please do not reply directly to this email.";
+    }
+
+    /**
+     * Build email template for consultation request acceptance
+     */
+    private String buildConsultationAcceptedEmailTemplate(Consultation consultation, Consultant consultant) {
+        String farmerName = consultation.getFarmer() != null
+                ? consultation.getFarmer().getFirstName() + " " + consultation.getFarmer().getLastName()
+                : "Valued Farmer";
+
+        return "Dear " + farmerName + ",\n\n" +
+                "🎉 Great news! Your consultation request has been accepted!\n\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "CONSULTATION DETAILS\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "Topic: " + consultation.getTopic() + "\n" +
+                "Status: APPROVED ✓\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+                "YOUR CONSULTANT\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "Name: " + consultant.getFirstName() + " " + consultant.getLastName() + "\n" +
+                "Expertise: " + consultant.getExpertiseArea() + "\n" +
+                "Experience: " + consultant.getExperienceYears() + " years\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+                "What happens next:\n" +
+                "• The consultant will schedule a farm visit\n" +
+                "• You'll receive a notification with visit details\n" +
+                "• Prepare relevant information about your farm\n\n" +
+                "Log in to your dashboard for more details.\n\n" +
+                "Best regards,\n" +
+                "The E-Consultancy for Farmers Team\n\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "This is an automated message. Please do not reply directly to this email.";
+    }
+
+    /**
+     * Build email template for consultation request rejection
+     */
+    private String buildConsultationRejectedEmailTemplate(Consultation consultation, Consultant consultant) {
+        String farmerName = consultation.getFarmer() != null
+                ? consultation.getFarmer().getFirstName() + " " + consultation.getFarmer().getLastName()
+                : "Valued Farmer";
+
+        return "Dear " + farmerName + ",\n\n" +
+                "We regret to inform you that your consultation request has been declined.\n\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "CONSULTATION DETAILS\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "Topic: " + consultation.getTopic() + "\n" +
+                "Status: REJECTED ✗\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+                "This could happen due to:\n" +
+                "• Consultant's schedule constraints\n" +
+                "• Topic outside consultant's expertise\n" +
+                "• Location limitations\n\n" +
+                "What you can do:\n" +
+                "• Browse other verified consultants\n" +
+                "• Submit a new consultation request\n" +
+                "• Contact support for assistance\n\n" +
+                "We encourage you to try again with another consultant.\n\n" +
+                "Best regards,\n" +
+                "The E-Consultancy for Farmers Team\n\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "This is an automated message. Please do not reply directly to this email.";
+    }
+
+    /**
+     * Build email template for farm visit scheduling
+     */
+    private String buildFarmVisitScheduledEmailTemplate(Consultation consultation, Consultant consultant,
+            Farmvisit visit) {
+        String farmerName = consultation.getFarmer() != null
+                ? consultation.getFarmer().getFirstName() + " " + consultation.getFarmer().getLastName()
+                : "Valued Farmer";
+
+        String visitDate = visit.getScheduledDate() != null
+                ? visit.getScheduledDate().toString()
+                : "To be confirmed";
+
+        return "Dear " + farmerName + ",\n\n" +
+                "📅 A farm visit has been scheduled for your consultation!\n\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "VISIT DETAILS\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "Consultation Topic: " + consultation.getTopic() + "\n" +
+                "Scheduled Date: " + visitDate + "\n" +
+                "Status: SCHEDULED ✓\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+                "YOUR CONSULTANT\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "Name: " + consultant.getFirstName() + " " + consultant.getLastName() + "\n" +
+                "Expertise: " + consultant.getExpertiseArea() + "\n" +
+                "Phone: " + (consultant.getPhone() != null ? consultant.getPhone() : "Available on request") + "\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+                "Please prepare for the visit:\n" +
+                "• Ensure someone is available at the farm\n" +
+                "• Prepare relevant farm documentation\n" +
+                "• Note down any specific questions or concerns\n" +
+                "• Ensure access to the areas that need consultation\n\n" +
+                "Log in to your dashboard to view full details.\n\n" +
+                "Best regards,\n" +
+                "The E-Consultancy for Farmers Team\n\n" +
+                "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
+                "This is an automated message. Please do not reply directly to this email.";
     }
 
 }

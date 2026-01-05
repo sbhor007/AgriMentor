@@ -72,17 +72,36 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   ngAfterViewChecked(): void {}
 
-  loadRooms() {
+  loadRooms(skipSync: boolean = false) {
     if (!this.isBrowser) return;
 
     const role = sessionStorage.getItem('role') || 'FARMER';
+    console.log('🔍 ChatComponent: Loading chat rooms for role:', role);
+
     this.chatService.getChatRooms(role).subscribe({
       next: (rooms) => {
+        console.log('📨 ChatComponent: Received rooms from API:', rooms);
+        console.log('📊 ChatComponent: Number of rooms received:', rooms?.length || 0);
+
+        // If no rooms found and we haven't tried syncing yet, try to sync
+        if ((!rooms || rooms.length === 0) && !skipSync) {
+          console.log(
+            '🔄 ChatComponent: No rooms found, attempting to sync from approved consultations...'
+          );
+          this.syncAndReload();
+          return;
+        }
+
         const uniqueParticipants = new Map<number, ChatRoom>();
 
         rooms.forEach((room) => {
           const other = this.getOtherParticipant(room);
-          if (!other || !other.id) return;
+          console.log('👤 ChatComponent: Processing room with participant:', other);
+
+          if (!other || !other.id) {
+            console.warn('⚠️ ChatComponent: Skipping room - invalid participant:', room);
+            return;
+          }
           const otherId = other.id;
 
           if (!uniqueParticipants.has(otherId)) {
@@ -99,10 +118,40 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         });
 
         this.chatRooms = Array.from(uniqueParticipants.values());
+        console.log('✅ ChatComponent: Final chat rooms after deduplication:', this.chatRooms);
+        console.log('📈 ChatComponent: Total unique chat rooms:', this.chatRooms.length);
+
         this.sortRooms();
         this.cdr.detectChanges();
       },
-      error: (e) => console.error('Error loading rooms', e),
+      error: (e) => {
+        console.error('❌ ChatComponent: Error loading rooms:', e);
+        console.error('❌ ChatComponent: Error details:', {
+          message: e.message,
+          status: e.status,
+          statusText: e.statusText,
+          url: e.url,
+        });
+      },
+    });
+  }
+
+  syncAndReload() {
+    this.loading = true;
+    this.chatService.syncChatRooms().subscribe({
+      next: (response) => {
+        console.log('✅ ChatComponent: Sync completed. Created rooms:', response.created);
+        // Reload rooms after sync, with skipSync=true to prevent infinite loop
+        setTimeout(() => {
+          this.loadRooms(true);
+          this.loading = false;
+        }, 500);
+      },
+      error: (e) => {
+        console.error('❌ ChatComponent: Error syncing rooms:', e);
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
     });
   }
 

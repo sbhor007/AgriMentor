@@ -1,6 +1,5 @@
 import { ChangeDetectorRef, Component, inject, Inject, PLATFORM_ID } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
-import { FarmerNavbar } from '../../components/farmerComponents/farmer-navbar/farmer-navbar';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { App, RouteAnimations } from '../../app';
 import { Subscription } from 'rxjs';

@@ -58,7 +58,68 @@
 
     <!-- Room List -->
     <div class="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2">
-      <!-- No Results Message -->
+      <!-- No Chat Rooms Available (Empty State) -->
+      <div
+        *ngIf="chatRooms.length === 0 && !searchQuery && !loading"
+        class="text-center py-8 px-4 text-gray-500"
+      >
+        <svg
+          class="w-16 h-16 mx-auto mb-4 text-gray-300"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+          ></path>
+        </svg>
+        <p class="text-base font-semibold text-gray-700 mb-2">No Conversations Yet</p>
+        <p class="text-sm text-gray-500 mb-3">
+          Chat rooms are created automatically from approved consultations
+        </p>
+        <button
+          (click)="syncAndReload()"
+          class="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
+        >
+          <svg
+            class="w-4 h-4 inline-block mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            ></path>
+          </svg>
+          Sync Conversations
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="text-center py-8 px-4 text-gray-500">
+        <svg
+          class="w-12 h-12 mx-auto mb-3 text-blue-500 animate-spin"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+          ></path>
+        </svg>
+        <p class="text-sm font-medium text-gray-600">Syncing conversations...</p>
+      </div>
+
+      <!-- No Results Message (Search) -->
       <div
         *ngIf="filteredChatRooms.length === 0 && searchQuery"
         class="text-center py-8 text-gray-500"
